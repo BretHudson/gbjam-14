@@ -1,0 +1,20 @@
+{
+	"extends": "@writegames.com/style-guide/typescript",
+	"include": ["src/**/*"],
+	"compilerOptions": {
+		"ignoreDeprecations": "6.0",
+		"target": "esnext",
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"isolatedModules": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"baseUrl": ".",
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"types": ["node", "@webgpu/types", "vite/client"],
+		"paths": {
+			"~/*": ["src/*"]
+		}
+	}
+}
