@@ -7,10 +7,55 @@ body {
 	min-height: 100%;
 	margin: 0;
 	padding: 0;
+
+	display: grid;
+	place-items: center;
+}
+
+#wrapper {
+	display: grid;
+	gap: 1rem;
+	justify-items: center;
+}
+
+#game-wrapper {
+	--scale: 3;
+	position: relative;
+	width: calc(160px * var(--scale));
+	aspect-ratio: 10 / 9;
+	/* height: calc(22Xs4px * 2); */
+
+	border: calc(4px * var(--scale)) solid #bbb;
+	padding: calc(1px * var(--scale));
+	border-radius: 12px;
 }
 
 canvas {
 	display: block;
 	width: 100%;
 	height: 100%;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: crisp-edges;
+	image-rendering: pixelated;
+}
+
+#render-passes {
+	display: flex;
+	gap: 1rem;
+
+	canvas {
+		border: 4px solid #888;
+		border-radius: 4px;
+	}
+}
+
+.debug-info {
+	display: none;
+	position: absolute;
+	left: 0;
+	top: 0;
+	padding: 0.5em;
+	background: #00000066;
+	font-family: monospace;
+	color: white;
 }

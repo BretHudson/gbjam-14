@@ -1,10 +1,15 @@
+import { vec2 } from 'wgpu-matrix';
 import './css/styles.css';
 
+import * as _game from './game';
+import { Input } from './input';
 import * as _cam from './renderer/camera';
-import { initCanvasResize } from './renderer/render-utils';
 import * as _render from './renderer/renderer';
 import { Renderer } from './renderer/renderer';
+import { GameState, Player } from './util';
+import { GAME_H, GAME_W } from './util/constants';
 
+let game = _game;
 let cam = _cam;
 let render = _render;
 if (import.meta.hot) {
@@ -16,10 +21,17 @@ if (import.meta.hot) {
 		// @ts-expect-error -- ignore
 		if (mod) render = mod;
 	});
+	import.meta.hot.accept('./game', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) game = mod;
+	});
 }
 
 async function setupApp(): Promise<void> {
 	const canvas = document.getElementById('game') as HTMLCanvasElement;
+
+	canvas.width = GAME_W;
+	canvas.height = GAME_H;
 
 	let aspect = canvas.width / canvas.height;
 
@@ -30,16 +42,33 @@ async function setupApp(): Promise<void> {
 
 	const camera = cam.create();
 
+	// Y = 46
+	const player: Player = {
+		pos: vec2.create(32, 32),
+	};
+
+	const state: GameState = { camera, player };
+
+	const debugInfo = document.createElement('pre');
+	debugInfo.classList.add('debug-info');
+	canvas.parentElement?.append(debugInfo);
+
+	const input = new Input(canvas);
+	input.listen();
+
 	const renderer = new Renderer(canvas, device);
 	await renderer.init();
 
 	function onUpdate(dt: number): void {
-		cam.update(camera, aspect);
+		game.update(dt, state, input);
+
+		cam.update(camera, input, aspect);
 		render.updateTime(dt);
 	}
 
 	function onRender(): void {
-		render.render(renderer, camera);
+		render.render(renderer, camera, player);
+		debugInfo.textContent = game.debugText(state);
 	}
 
 	let lastTime: number;
@@ -47,8 +76,12 @@ async function setupApp(): Promise<void> {
 		lastTime ||= t;
 		const dt = t - lastTime;
 		lastTime = t;
+
+		input.preUpdate();
+		input.update();
 		onUpdate(dt);
 		onRender();
+		input.postUpdate();
 
 		window.requestAnimationFrame(loop);
 	}
@@ -56,15 +89,7 @@ async function setupApp(): Promise<void> {
 	console.log('Game initialized');
 	window.requestAnimationFrame(loop);
 
-	initCanvasResize(canvas, (width: number, height: number) => {
-		const { maxTextureDimension2D } = device.limits;
-
-		canvas.width = Math.max(1, Math.min(width, maxTextureDimension2D));
-		canvas.height = Math.max(1, Math.min(height, maxTextureDimension2D));
-		aspect = canvas.width / canvas.height;
-
-		renderer.onCanvasSizeUpdate(canvas.width, canvas.height);
-	});
+	renderer.onCanvasSizeUpdate(GAME_W, GAME_H);
 }
 
 void setupApp();
