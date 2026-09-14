@@ -23,6 +23,7 @@ function createPalette(...colors: string[]) {
 createPalette('#071821', '#306850', '#86c06c', '#e0f8cf');
 createPalette('#393829', '#7b7162', '#b4a56a', '#e6d69c');
 createPalette('#003049', '#d62828', '#f77f00', '#fcbf49');
+createPalette('#663333', '#0000aa', '#cc0000', '#00dd00');
 
 export interface TexturePointer {
 	texture: GPUTexture;
