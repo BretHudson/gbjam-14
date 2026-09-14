@@ -1,10 +1,7 @@
 import { Input } from './input';
 import * as _cam from './renderer/camera';
-import { Camera } from './renderer/camera';
-import { GameState, Player } from './util';
+import { GameState } from './util';
 import { GAME_H, GAME_W, HUD_H } from './util/constants';
-
-import { Renderer } from './renderer/renderer';
 
 let cam = _cam;
 if (import.meta.hot) {
@@ -17,9 +14,9 @@ if (import.meta.hot) {
 export function update(dt: number, state: GameState, input: Input): void {
 	const { player, camera } = state;
 
-	const xx = +input.keyHeld('ArrowRight') - +input.keyHeld('ArrowLeft');
+	const xx = +input.keyHeld('KeyD') - +input.keyHeld('KeyA');
 	player.pos[0] += xx;
-	const yy = +input.keyHeld('ArrowDown') - +input.keyHeld('ArrowUp');
+	const yy = +input.keyHeld('KeyS') - +input.keyHeld('KeyW');
 	player.pos[1] += yy;
 
 	let [xPos, yPos] = player.pos;

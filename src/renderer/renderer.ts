@@ -13,9 +13,16 @@ type PipelineConstructor<T extends Pipeline> = new (
 
 const instanceFloats = 16 + 16 + 4;
 
-const colors = ['#e0f8cf', '#86c05c', '#306850', '#071821']
-	.map((c) => hexToRgb(c))
-	.reverse();
+const palettes: [number, number, number, number][][] = [];
+function createPalette(...colors: string[]) {
+	const palette = colors.map((c) => hexToRgb(c));
+	palettes.push(palette);
+	return palette;
+}
+
+createPalette('#071821', '#306850', '#86c06c', '#e0f8cf');
+createPalette('#393829', '#7b7162', '#b4a56a', '#e6d69c');
+createPalette('#003049', '#d62828', '#f77f00', '#fcbf49');
 
 export interface TexturePointer {
 	texture: GPUTexture;
@@ -252,10 +259,11 @@ export class Renderer {
 	}
 }
 
+let palette = 0;
 function updateUniforms(renderer: Renderer, camera: Camera): void {
 	const { uniformData } = renderer;
 	uniformData.set(camera.viewProjMatrix);
-	uniformData.set(colors.flat(), 16);
+	uniformData.set(palettes[palette].flat(), 16);
 	uniformData[32] = elapsed / 1e3;
 
 	renderer.device.queue.writeBuffer(renderer.uniformBuffer, 0, uniformData);
@@ -414,4 +422,8 @@ function copyPassTexture(
 let elapsed = 0;
 export function updateTime(dt: number): void {
 	elapsed += dt;
+}
+
+export function nextPalette() {
+	palette = ++palette % palettes.length;
 }

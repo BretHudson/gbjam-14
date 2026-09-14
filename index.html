@@ -8,8 +8,32 @@
 	</head>
 	<body>
 		<div id="wrapper">
-			<div id="game-wrapper">
-				<canvas id="game"></canvas>
+			<div id="console">
+				<div class="screen">
+					<div id="game-wrapper">
+						<canvas id="game"></canvas>
+					</div>
+				</div>
+				<div id="brand-and-name">
+					<span class="brand">Nitenode</span>
+					<span class="name">Ugly Giant</span>
+					<span class="tm">TM</span>
+				</div>
+				<div id="buttons">
+					<div id="dpad">
+						<div class="dpad-button" id="dpad-up"></div>
+						<div class="dpad-button" id="dpad-left"></div>
+						<div class="dpad-button" id="dpad-center"></div>
+						<div class="dpad-button" id="dpad-right"></div>
+						<div class="dpad-button" id="dpad-down"></div>
+					</div>
+					<div class="start-select" id="select-button"></div>
+					<div class="start-select" id="start-button"></div>
+					<div id="a-b-buttons">
+						<div id="a-button" class="a-b-button"></div>
+						<div id="b-button" class="a-b-button"></div>
+					</div>
+				</div>
 			</div>
 			<div id="render-passes"></div>
 		</div>

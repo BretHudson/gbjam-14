@@ -5,6 +5,7 @@ import * as _game from './game';
 import { Input } from './input';
 import * as _cam from './renderer/camera';
 import * as _render from './renderer/renderer';
+import * as _consoleUI from './console-ui';
 import { Renderer } from './renderer/renderer';
 import { GameState, Player } from './util';
 import { GAME_H, GAME_W } from './util/constants';
@@ -12,6 +13,7 @@ import { GAME_H, GAME_W } from './util/constants';
 let game = _game;
 let cam = _cam;
 let render = _render;
+let consoleUI = _consoleUI;
 if (import.meta.hot) {
 	import.meta.hot.accept('./renderer/camera', (mod) => {
 		// @ts-expect-error -- ignore
@@ -24,6 +26,11 @@ if (import.meta.hot) {
 	import.meta.hot.accept('./game', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) game = mod;
+	});
+	import.meta.hot.accept('./console-ui', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) consoleUI = mod;
+		consoleUI.initConsoleUI();
 	});
 }
 
@@ -63,7 +70,13 @@ async function setupApp(): Promise<void> {
 		game.update(dt, state, input);
 
 		cam.update(camera, input, aspect);
-		render.updateTime(dt);
+
+		consoleUI.updateConsoleUI(input);
+
+		if (input.keyPressed('Enter')) {
+			render.nextPalette();
+			render.updateTime(dt);
+		}
 	}
 
 	function onRender(): void {
