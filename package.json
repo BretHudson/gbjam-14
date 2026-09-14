@@ -10,12 +10,11 @@
 	"packageManager": "pnpm@11.22.0",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build && node scripts/build.js",
-		"build:gh-pages": "vite build",
+		"build": "vite build",
 		"preview": "vite preview",
 		"lint": "eslint .",
 		"fix-lint": "eslint --fix .",
-		"type-check": "tsc --project tsconfig.json --noEmit"
+		"typecheck": "tsc --project tsconfig.json --noEmit"
 	},
 	"dependencies": {
 		"wgpu-matrix": "3.4.2"
