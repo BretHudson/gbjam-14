@@ -16,6 +16,8 @@ body {
 
 	display: grid;
 	place-items: center;
+
+	font-family: monospace;
 }
 
 #wrapper {
@@ -104,23 +106,28 @@ body {
 
 #dpad-up {
 	grid-area: U;
+	border-bottom: 0;
 }
 
 #dpad-left {
 	grid-area: L;
+	border-right: 0;
 }
 
 #dpad-center {
 	border: 0;
 	grid-area: C;
+	z-index: 1;
 }
 
 #dpad-right {
 	grid-area: R;
+	border-left: 0;
 }
 
 #dpad-down {
 	grid-area: D;
+	border-top: 0;
 }
 
 .start-select {
@@ -164,8 +171,8 @@ body {
 
 #game-wrapper {
 	position: relative;
-	width: calc(160px * var(--scale));
-	aspect-ratio: 10 / 9;
+	/* 2px come from padding */
+	width: calc(162px * var(--scale));
 	/* height: calc(22Xs4px * 2); */
 
 	background: black;
@@ -177,18 +184,32 @@ canvas {
 	display: block;
 	width: 100%;
 	height: 100%;
+	aspect-ratio: 10 / 9;
 	image-rendering: -webkit-optimize-contrast;
 	image-rendering: crisp-edges;
 	image-rendering: pixelated;
 }
 
 #render-passes {
-	display: flex;
-	gap: 1rem;
+}
+
+.pipeline-preview {
+	display: inline-block;
+	text-align: center;
+	line-height: 2rem;
+	margin-inline: 0.5rem;
 
 	canvas {
+		display: block;
+		line-height: 1;
 		border: 4px solid #888;
 		border-radius: 4px;
+	}
+
+	span {
+		display: inline-block;
+		margin-bottom: 0.5rem;
+		font-size: 1.25rem;
 	}
 }
 

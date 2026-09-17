@@ -102,9 +102,17 @@ export class Renderer {
 		const passesWrapper = document.getElementById('render-passes');
 		if (!passesWrapper) throw new Error('#render-passes missing');
 		for (let i = 0; i < 3; ++i) {
+			const wrapper = document.createElement('div');
+			wrapper.classList.add('pipeline-preview');
+
+			const label = document.createElement('span');
+			label.textContent = ['Draw Sprites', 'Posterize', 'Palette'][i];
+			wrapper.append(label);
+
 			const canvas = document.createElement(
 				'canvas',
 			) as HTMLCanvasElement;
+			wrapper.append(canvas);
 
 			canvas.width = GAME_W;
 			canvas.height = GAME_H;
@@ -122,7 +130,7 @@ export class Renderer {
 					GPUTextureUsage.COPY_DST,
 			});
 
-			passesWrapper.append(canvas);
+			passesWrapper.append(wrapper);
 		}
 
 		this.uniformsBindGroup = this.device.createBindGroup({
