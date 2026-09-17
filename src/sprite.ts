@@ -24,6 +24,14 @@ export class Sprite {
 		this.palette.set([0, 1, 2, 3]);
 	}
 
+	setPalette(c0: number, c1: number = c0, c2: number = c1, c3: number = c2) {
+		this.palette.set([c0, c1, c2, c3]);
+	}
+
+	resetPalette() {
+		this.setPalette(0, 1, 2, 3);
+	}
+
 	get x() {
 		return this._data[X];
 	}

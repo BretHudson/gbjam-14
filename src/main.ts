@@ -56,6 +56,7 @@ async function setupApp(): Promise<void> {
 	const player: Player = {
 		pos: vec2.create(32, 32),
 		sprite: new Sprite(GAME_W + 16, 16, 16, 16),
+		health: 4,
 	};
 
 	const sprites: Sprite[] = [];

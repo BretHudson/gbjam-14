@@ -32,6 +32,7 @@ export function clamp(v: number, min: number, max: number) {
 export interface Player {
 	sprite: Sprite;
 	pos: Vec2;
+	health: number;
 }
 
 // gonna need raw, screen, and local pos

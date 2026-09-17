@@ -53,11 +53,19 @@ export function update(dt: number, state: GameState, input: Input): void {
 
 	// right arm
 
+	player.health = 4;
+
 	// hearts
 	// const hearts = sprites.slice(-4);
-	const curI = Math.floor(frameId / 15) % 4;
-	for (let i = 0; i < hearts.length; ++i) {
+	const healthCount = player.health;
+	const curI = Math.floor(frameId / 15) % (hearts.length + 2);
+	for (let i = 0; i < healthCount; ++i) {
 		hearts[i].y = i === curI ? -1 : 0;
+		hearts[i].resetPalette();
+	}
+	for (let i = healthCount; i < hearts.length; ++i) {
+		hearts[i].y = 0;
+		hearts[i].setPalette(1);
 	}
 
 	// camera
