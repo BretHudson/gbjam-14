@@ -1,10 +1,11 @@
-import { hexToRgb, Player } from '../util';
-import { GAME_H, GAME_W } from '../util/constants';
+import { hexToRgb, Player } from '~/util';
+import { GAME_H, GAME_W } from '~/util/constants';
 import type { Camera } from './camera';
 import { PaletteSwapPipeline } from './pipelines/palette-swap-pipeline';
 import type { Pipeline } from './pipelines/pipeline';
 import { PosterizePipeline } from './pipelines/posterize-pipeline';
 import { SpritePipeline } from './pipelines/sprite-pipeline';
+import { Sprite } from '~/sprite';
 
 type PipelineConstructor<T extends Pipeline> = new (
 	device: GPUDevice,
@@ -273,7 +274,7 @@ function updateUniforms(renderer: Renderer, camera: Camera): void {
 export function render(
 	renderer: Renderer,
 	camera: Camera,
-	player: Player,
+	sprites: Sprite[],
 ): void {
 	const {
 		context,
@@ -323,7 +324,7 @@ export function render(
 			(renderPass) => {
 				renderPass.setBindGroup(0, uniformsBindGroup);
 
-				spritePipeline.render(renderPass, camera, player);
+				spritePipeline.render(renderPass, camera, sprites);
 			},
 		);
 

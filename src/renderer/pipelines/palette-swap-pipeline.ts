@@ -1,5 +1,5 @@
-import { fetchShader } from '../render-utils';
-import type { Renderer, TexturePointer } from '../renderer';
+import { fetchShader } from '~/renderer/render-utils';
+import type { Renderer, TexturePointer } from '~/renderer/renderer';
 import { Pipeline } from './pipeline';
 
 const shaderFilename = 'palette-swap.wgsl';

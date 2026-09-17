@@ -1,17 +1,17 @@
-import { loadTexture, Player } from '../../util';
-import { GAME_H, GAME_W, HUD_H } from '../../util/constants';
-import { Camera } from '../camera';
-import { fetchShader } from '../render-utils';
-import type { Renderer, TexturePointer } from '../renderer';
+import { Camera } from '~/renderer/camera';
+import { fetchShader } from '~/renderer/render-utils';
+import type { Renderer, TexturePointer } from '~/renderer/renderer';
+import { Sprite } from '~/sprite';
+import { loadTexture, Player } from '~/util';
+import { GAME_H, GAME_W, HUD_H } from '~/util/constants';
 import { Pipeline } from './pipeline';
 
 const shaderFilename = 'sprite.wgsl';
 
 const maxInstances = 32;
-const instanceFloats = 8;
+const instanceFloats = Sprite.InstanceFloats + 2;
 const spriteBufferData = new Float32Array(instanceFloats * maxInstances);
 
-let instanceCount = 0;
 export class SpritePipeline extends Pipeline {
 	uniformsBindGroupLayout!: GPUBindGroupLayout;
 
@@ -198,95 +198,25 @@ export class SpritePipeline extends Pipeline {
 	render(
 		renderPass: GPURenderPassEncoder,
 		camera: Camera,
-		player: Player,
+		sprites: Sprite[],
 	): void {
 		const { device } = this;
 
-		instanceCount = 0;
-
-		{
+		sprites?.forEach((sprite, i) => {
 			spriteBufferData.set(
 				[
-					0,
-					0,
-					160,
-					0,
-					16,
-					16,
+					...sprite._data,
 					SpritePipeline.texture.width,
 					SpritePipeline.texture.height,
 				],
-				instanceCount++ * instanceFloats,
+				i * instanceFloats,
 			);
-		}
-		{
-			spriteBufferData.set(
-				[
-					0,
-					0,
-					0,
-					0,
-					GAME_W,
-					GAME_H,
-					SpritePipeline.texture.width,
-					SpritePipeline.texture.height,
-				],
-				instanceCount++ * instanceFloats,
-			);
-		}
-		{
-			spriteBufferData.set(
-				[
-					player.pos[0] - 18,
-					player.pos[1] - 96,
-					160 + 16,
-					0,
-					16,
-					16,
-					SpritePipeline.texture.width,
-					SpritePipeline.texture.height,
-				],
-				instanceCount++ * instanceFloats,
-			);
-		}
-		{
-			spriteBufferData.set(
-				[
-					player.pos[0],
-					player.pos[1],
-					160 + 16,
-					16,
-					16,
-					16,
-					SpritePipeline.texture.width,
-					SpritePipeline.texture.height,
-				],
-				instanceCount++ * instanceFloats,
-			);
-		}
-		{
-			// TODO(bret): HUD needs its own way to
-			// handle transforms so that it's not
-			// relative to the camera
-			spriteBufferData.set(
-				[
-					camera.eye[0],
-					GAME_H - HUD_H + camera.eye[1],
-					160,
-					16,
-					16,
-					16,
-					SpritePipeline.texture.width,
-					SpritePipeline.texture.height,
-				],
-				instanceCount++ * instanceFloats,
-			);
-		}
+		});
 
 		this.device.queue.writeBuffer(this.spriteBuffer, 0, spriteBufferData);
 
 		renderPass.setPipeline(this.pipeline);
 		renderPass.setBindGroup(1, this.bindGroup);
-		renderPass.draw(6, instanceCount, 0, 0);
+		renderPass.draw(6, sprites.length, 0, 0);
 	}
 }

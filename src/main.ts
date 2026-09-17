@@ -8,7 +8,8 @@ import * as _render from './renderer/renderer';
 import * as _consoleUI from './console-ui';
 import { Renderer } from './renderer/renderer';
 import { GameState, Player } from './util';
-import { GAME_H, GAME_W } from './util/constants';
+import { GAME_H, GAME_W, HUD_H } from './util/constants';
+import { Sprite } from './sprite';
 
 let game = _game;
 let cam = _cam;
@@ -50,11 +51,19 @@ async function setupApp(): Promise<void> {
 	const camera = cam.create();
 
 	// Y = 46
-	const player: Player = {
+	const player = {
 		pos: vec2.create(32, 32),
+		sprite: new Sprite(GAME_W + 16, 16, 16, 16),
 	};
 
-	const state: GameState = { camera, player };
+	const sprites: Sprite[] = [];
+	sprites.push(new Sprite(0, 0, GAME_W, GAME_H)); // bg
+	sprites.push(new Sprite(160, 0, 16, 16)); // thing in corner
+	sprites.push(player.sprite);
+	const hud = new Sprite(GAME_W, 16, 16, 16);
+	sprites.push(hud); // "HUD"
+
+	const state: GameState = { camera, player, sprites };
 
 	const debugInfo = document.createElement('pre');
 	debugInfo.classList.add('debug-info');
@@ -71,6 +80,9 @@ async function setupApp(): Promise<void> {
 
 		cam.update(camera, input, aspect);
 
+		hud.x = camera.eye[0];
+		hud.y = GAME_H - HUD_H + camera.eye[1];
+
 		consoleUI.updateConsoleUI(input);
 
 		if (input.keyPressed('Enter')) {
@@ -80,7 +92,7 @@ async function setupApp(): Promise<void> {
 	}
 
 	function onRender(): void {
-		render.render(renderer, camera, player);
+		render.render(renderer, camera, sprites);
 		debugInfo.textContent = game.debugText(state);
 	}
 

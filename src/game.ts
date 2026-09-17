@@ -19,6 +19,9 @@ export function update(dt: number, state: GameState, input: Input): void {
 	const yy = +input.keyHeld('KeyS') - +input.keyHeld('KeyW');
 	player.pos[1] += yy;
 
+	player.sprite.x = player.pos[0];
+	player.sprite.y = player.pos[1];
+
 	let [xPos, yPos] = player.pos;
 	xPos -= GAME_W / 2;
 	yPos -= GAME_H - HUD_H - 36;

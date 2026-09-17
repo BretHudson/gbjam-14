@@ -1,5 +1,6 @@
-import type { Vec2 } from 'wgpu-matrix';
-import { Camera } from '../renderer/camera';
+import { vec2, type Vec2 } from 'wgpu-matrix';
+import { Camera } from '~/renderer/camera';
+import { Sprite } from '~/sprite';
 
 export async function loadTexture(device: GPUDevice, url: string) {
 	const response = await fetch(url);
@@ -29,6 +30,7 @@ export function clamp(v: number, min: number, max: number) {
 }
 
 export interface Player {
+	sprite: Sprite;
 	pos: Vec2;
 }
 
@@ -36,6 +38,7 @@ export interface Player {
 export interface GameState {
 	camera: Camera;
 	player: Player;
+	sprites: Sprite[];
 }
 
 export function hexToRgb(hex: string): [number, number, number, number] {

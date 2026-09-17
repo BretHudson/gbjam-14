@@ -1,8 +1,8 @@
 import type { Mat4, Vec3 } from 'wgpu-matrix';
 import { mat4 } from 'wgpu-matrix';
-import { Input } from '../input';
-import { clamp } from '../util';
-import { GAME_H, GAME_W, HUD_H } from '../util/constants';
+import { Input } from '~/input';
+import { clamp } from '~/util';
+import { GAME_H, GAME_W, HUD_H } from '~/util/constants';
 
 export interface Camera {
 	eye: Vec3;
