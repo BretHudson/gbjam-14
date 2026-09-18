@@ -197,7 +197,9 @@ export class SpritePipeline extends Pipeline {
 	render(renderPass: GPURenderPassEncoder, sprites: Sprite[]): void {
 		const { device } = this;
 
-		sprites?.forEach((sprite, i) => {
+		const toRender = sprites.filter((sprite) => sprite.visible);
+
+		toRender.forEach((sprite, i) => {
 			spriteBufferData.set(
 				[
 					SpritePipeline.texture.width,
@@ -212,6 +214,6 @@ export class SpritePipeline extends Pipeline {
 
 		renderPass.setPipeline(this.pipeline);
 		renderPass.setBindGroup(1, this.bindGroup);
-		renderPass.draw(6, sprites.length, 0, 0);
+		renderPass.draw(6, toRender.length, 0, 0);
 	}
 }

@@ -5,6 +5,13 @@ export class Sprite {
 
 	_data = new Float32Array(Sprite.InstanceFloats);
 	palette = this._data.subarray(P, P + 4);
+	visible = true;
+
+	_x: number = 0;
+	_y: number = 0;
+
+	_offsetX: number = 0;
+	_offsetY: number = 0;
 
 	constructor(
 		textureX: number,
@@ -32,18 +39,50 @@ export class Sprite {
 		this.setPalette(0, 1, 2, 3);
 	}
 
+	cyclePalette() {
+		const palette = [...this.palette] as [number, number, number, number];
+		palette.push(palette.shift() as number);
+		this.setPalette(...palette);
+	}
+
 	get x() {
-		return this._data[X];
+		return this._x;
 	}
 	set x(value) {
-		this._data[X] = value;
+		this._x = value;
+		this._updateX();
+	}
+
+	get offsetX() {
+		return this._offsetX;
+	}
+	set offsetX(value) {
+		this._offsetX = value;
+		this._updateX();
+	}
+
+	_updateX() {
+		this._data[X] = this._x + this._offsetX;
 	}
 
 	get y() {
-		return this._data[Y];
+		return this._y;
 	}
 	set y(value) {
-		this._data[Y] = value;
+		this._y = value;
+		this._updateY();
+	}
+
+	get offsetY() {
+		return this._offsetY;
+	}
+	set offsetY(value) {
+		this._offsetY = value;
+		this._updateY();
+	}
+
+	_updateY() {
+		this._data[Y] = this._y + this._offsetY;
 	}
 
 	get textureX() {
@@ -72,5 +111,23 @@ export class Sprite {
 	}
 	set height(value) {
 		this._data[H] = value;
+	}
+}
+
+export class SpriteGroup {
+	sprites: Sprite[] = [];
+
+	constructor(...sprites: Sprite[]) {
+		this.sprites = sprites;
+	}
+
+	setPalette(c0: number, c1: number = c0, c2: number = c1, c3: number = c2) {
+		this.sprites.forEach((sprite) => {
+			sprite.palette.set([c0, c1, c2, c3]);
+		});
+	}
+
+	resetPalette() {
+		this.setPalette(0, 1, 2, 3);
 	}
 }

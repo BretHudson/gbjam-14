@@ -1,6 +1,6 @@
-import { vec2, type Vec2 } from 'wgpu-matrix';
+import { type Vec2 } from 'wgpu-matrix';
 import { Camera } from '~/renderer/camera';
-import { Sprite } from '~/sprite';
+import { Sprite, SpriteGroup } from '~/sprite';
 
 export async function loadTexture(device: GPUDevice, url: string) {
 	const response = await fetch(url);
@@ -35,11 +35,32 @@ export interface Player {
 	health: number;
 }
 
+export enum FSMState {
+	NONE,
+
+	MENU,
+	INTRO,
+	PLAYER_INPUT,
+	SEE_PLAY,
+
+	NUM,
+}
+
+export const GROUP = {
+	BG: 'BG',
+	ENEMY: 'ENEMY',
+	HUD: 'HUD',
+} as const;
+
 // gonna need raw, screen, and local pos
 export interface GameState {
 	camera: Camera;
 	player: Player;
 	sprites: Sprite[];
+	spriteGroups: Map<keyof typeof GROUP, SpriteGroup>;
+	lastState: FSMState;
+	state: FSMState;
+	nextState: FSMState;
 }
 
 export function hexToRgb(hex: string): [number, number, number, number] {
