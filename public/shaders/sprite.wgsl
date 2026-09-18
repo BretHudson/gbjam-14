@@ -10,10 +10,11 @@ struct Uniforms {
 };
 
 struct SpriteRect {
+    textureSize: vec2f,
     pos: vec2f,
     offset: vec2f,
     size: vec2f,
-    textureSize: vec2f,
+    palette: vec4f,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -25,6 +26,7 @@ struct SpriteRect {
 struct VertexOutput {
     @builtin(position) pos: vec4f,
     @location(0) uv: vec2f,
+    @location(1) palette: vec4f,
 };
 
 const SCALE: f32 = 120.0;
@@ -71,7 +73,7 @@ fn vs(
     // out.pos = uniforms.mvp * rot2D(uniforms.time * .2) * vec4f(worldPos, 1.0);
     out.pos = uniforms.mvp * vec4f(worldPos, 1.0);
     out.uv = spriteUv;
-    // out.uv = uv;
+    out.palette = spriteUniform.palette;
 
     return out;
 }
@@ -79,11 +81,15 @@ fn vs(
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
     let sample = textureSample(myTexture, mySampler, in.uv);
-    return sample;
-    let index = u32(floor(sample.r * 3.999));
-    return vec4f(uniforms.palette[index], 1.0);
 
-    // let index = min(3u, u32(floor(in.uv.x * 4.0)));
+    var index = min(3u, u32(floor(sample.r * 4.0)));
 
-    // return vec4f(uniforms.palette[index], 1.0);
+    if sample.r <= .06 { index = 0; }
+	else if sample.r <= .25 { index = 1; }
+	else if sample.r <= .75 { index = 2; }
+	else { index = 3; }
+
+    index = u32(in.palette[index]);
+
+    return vec4f(vec3f(f32(index) / 3.), sample.a);
 }

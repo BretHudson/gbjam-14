@@ -2,13 +2,12 @@ import { Camera } from '~/renderer/camera';
 import { fetchShader } from '~/renderer/render-utils';
 import type { Renderer, TexturePointer } from '~/renderer/renderer';
 import { Sprite } from '~/sprite';
-import { loadTexture, Player } from '~/util';
-import { GAME_H, GAME_W, HUD_H } from '~/util/constants';
+import { loadTexture } from '~/util';
 import { Pipeline } from './pipeline';
 
 const shaderFilename = 'sprite.wgsl';
 
-const maxInstances = 32;
+const maxInstances = 128;
 const instanceFloats = Sprite.InstanceFloats + 2;
 const spriteBufferData = new Float32Array(instanceFloats * maxInstances);
 
@@ -22,7 +21,7 @@ export class SpritePipeline extends Pipeline {
 	async init(renderer: Renderer): Promise<this> {
 		const texture = await loadTexture(
 			renderer.device,
-			'img/debug-spritesheet.png',
+			'img/spritesheet.png',
 		);
 		SpritePipeline.texture = texture;
 
@@ -195,19 +194,15 @@ export class SpritePipeline extends Pipeline {
 		}
 	}
 
-	render(
-		renderPass: GPURenderPassEncoder,
-		camera: Camera,
-		sprites: Sprite[],
-	): void {
+	render(renderPass: GPURenderPassEncoder, sprites: Sprite[]): void {
 		const { device } = this;
 
 		sprites?.forEach((sprite, i) => {
 			spriteBufferData.set(
 				[
-					...sprite._data,
 					SpritePipeline.texture.width,
 					SpritePipeline.texture.height,
+					...sprite._data,
 				],
 				i * instanceFloats,
 			);

@@ -40,7 +40,7 @@ fn vs(
 fn fs(in: VertexOutput) -> @location(0) vec4f {
     let sample = textureSample(myTexture, mySampler, in.uv);
 
-    let index = min(3u, u32(floor(sample.r * 4.0)));
+    var index = min(3u, u32(floor(sample.r * 4.0)));
     let c = f32(index) / 3.;
 
     return vec4f(vec3f(c), 1.0);

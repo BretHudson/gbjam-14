@@ -324,7 +324,7 @@ export function render(
 			(renderPass) => {
 				renderPass.setBindGroup(0, uniformsBindGroup);
 
-				spritePipeline.render(renderPass, camera, sprites);
+				spritePipeline.render(renderPass, sprites);
 			},
 		);
 

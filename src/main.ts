@@ -11,6 +11,8 @@ import { GameState, Player } from './util';
 import { GAME_H, GAME_W, HUD_H } from './util/constants';
 import { Sprite } from './sprite';
 
+import spritesheet from '../public/img/spritesheet.json';
+
 let game = _game;
 let cam = _cam;
 let render = _render;
@@ -51,7 +53,7 @@ async function setupApp(): Promise<void> {
 	const camera = cam.create();
 
 	// Y = 46
-	const player = {
+	const player: Player = {
 		pos: vec2.create(32, 32),
 		sprite: new Sprite(GAME_W + 16, 16, 16, 16),
 	};
@@ -62,6 +64,16 @@ async function setupApp(): Promise<void> {
 	sprites.push(player.sprite);
 	const hud = new Sprite(GAME_W, 16, 16, 16);
 	sprites.push(hud); // "HUD"
+
+	const identifiers = Object.entries(spritesheet.frames).map(
+		([name, { frame }]) => {
+			const sprite = new Sprite(frame.x, frame.y, frame.w, frame.h);
+			sprites.push(sprite);
+			return [name, sprite];
+		},
+	);
+
+	console.table(identifiers);
 
 	const state: GameState = { camera, player, sprites };
 

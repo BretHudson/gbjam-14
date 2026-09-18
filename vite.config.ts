@@ -38,6 +38,10 @@ export default defineConfig({
 			},
 		},
 	],
+	server: {
+		host: true,
+		allowedHosts: true,
+	},
 	build: {
 		modulePreload: { polyfill: false },
 		target: 'esnext',
