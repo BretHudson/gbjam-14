@@ -1,7 +1,7 @@
 import { Input } from './input';
 import * as _cam from './renderer/camera';
 import { Sprite, SpriteGroup } from './sprite';
-import { FSMState, GameState, GROUP } from './util';
+import { FSMState, Game, BattleState, GROUP } from './util';
 import { GAME_H, GAME_W, HUD_H } from './util/constants';
 
 let cam = _cam;
@@ -107,24 +107,24 @@ function* fadeIn2(sprites: Sprite[], duration = 15) {
 	}
 }
 
-function* runIntro(gameState: GameState) {
-	const { sprites } = gameState;
+function* runIntro(battleState: BattleState) {
+	const { sprites } = battleState;
 
 	sprites.forEach((sprite) => (sprite.visible = false));
 
-	yield* fadeIn(gameState.spriteGroups.get(GROUP.BG)!.sprites, 30);
+	yield* fadeIn(battleState.spriteGroups.get(GROUP.BG)!.sprites, 30);
 	yield* pause();
 
-	yield* fadeIn2(gameState.spriteGroups.get(GROUP.HUD)!.sprites);
+	yield* fadeIn2(battleState.spriteGroups.get(GROUP.HUD)!.sprites);
 	yield* pause(30);
 
-	yield* fadeInReverse(gameState.spriteGroups.get(GROUP.ENEMY)!.sprites);
+	yield* fadeInReverse(battleState.spriteGroups.get(GROUP.ENEMY)!.sprites);
 	yield* pause();
 
-	gameState.nextState = FSMState.PLAYER_INPUT;
+	battleState.nextState = FSMState.PLAYER_INPUT;
 }
 
-function* runSeePlay(gameState: GameState) {
+function* runSeePlay(gameState: BattleState) {
 	const _bg = gameState.spriteGroups.get(GROUP.BG)!;
 	const bg = new SpriteGroup(..._bg.sprites.slice(0, 2));
 	const enemy = gameState.spriteGroups.get(GROUP.ENEMY)!;
@@ -162,7 +162,7 @@ enum Direction {
 	Down,
 }
 
-export function initGroups(gameState: GameState): void {
+export function initGroups(gameState: BattleState): void {
 	const { spriteGroups, sprites } = gameState;
 	spriteGroups.clear();
 
@@ -175,25 +175,27 @@ export function initGroups(gameState: GameState): void {
 }
 
 let stateStarted = -1;
-export function update(dt: number, gameState: GameState, input: Input): void {
-	if (input.keyPressed('Digit1')) gameState.nextState = 1;
-	if (input.keyPressed('Digit2')) gameState.nextState = 2;
+function updateBattle(dt: number, game: Game, input: Input): void {
+	const { battleState } = game;
 
-	if (gameState.state !== gameState.nextState) {
-		console.warn('switching to ', gameState.nextState);
-		gameState.state = gameState.nextState;
+	if (input.keyPressed('Digit1')) battleState.nextState = 1;
+	if (input.keyPressed('Digit2')) battleState.nextState = 2;
+
+	if (battleState.state !== battleState.nextState) {
+		console.warn('switching to ', battleState.nextState);
+		battleState.state = battleState.nextState;
 	}
 
-	const { player, camera, sprites, lastState, state } = gameState;
+	const { player, camera, sprites, lastState, state } = battleState;
 
 	if (lastState !== state) {
 		stateStarted = frameId;
 		switch (state) {
 			case FSMState.INTRO:
-				curGenerator = runIntro(gameState);
+				curGenerator = runIntro(battleState);
 				break;
 
-			case FSMState.MENU:
+			case FSMState.NULL:
 				//
 				break;
 
@@ -204,7 +206,7 @@ export function update(dt: number, gameState: GameState, input: Input): void {
 				break;
 
 			case FSMState.SEE_PLAY:
-				curGenerator = runSeePlay(gameState);
+				curGenerator = runSeePlay(battleState);
 				break;
 
 			case FSMState.NONE:
@@ -244,7 +246,7 @@ export function update(dt: number, gameState: GameState, input: Input): void {
 			// const canPlay = direction !== Direction.None;
 			const canPlay = true;
 			if (canPlay && input.keyPressed('Space')) {
-				gameState.nextState = FSMState.SEE_PLAY;
+				battleState.nextState = FSMState.SEE_PLAY;
 			}
 		}
 	}
@@ -321,11 +323,23 @@ export function update(dt: number, gameState: GameState, input: Input): void {
 	// frame timer
 	++frameId;
 
-	gameState.lastState = gameState.state;
+	battleState.lastState = battleState.state;
 }
 
-export function debugText(gameState: GameState) {
-	const { camera, player } = gameState;
+export function update(dt: number, game: Game, input: Input): void {
+	switch (game.scene) {
+		case 'MENU':
+			break;
+		case 'BATTLE':
+			updateBattle(dt, game, input);
+			break;
+		default:
+			throw new Error(`"${game.scene}" is not a valid scene`);
+	}
+}
+
+export function debugText(game: Game) {
+	const { battleState: gameState } = game;
 
 	const key = Object.values(FSMState)[gameState.state];
 

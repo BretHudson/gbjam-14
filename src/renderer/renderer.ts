@@ -1,13 +1,12 @@
-import { hexToRgb, Player } from '~/util';
+import { Game, hexToRgb, SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
 import type { Camera } from './camera';
 import { PaletteSwapPipeline } from './pipelines/palette-swap-pipeline';
 import type { Pipeline } from './pipelines/pipeline';
 import { PosterizePipeline } from './pipelines/posterize-pipeline';
 import { SpritePipeline } from './pipelines/sprite-pipeline';
-import { Sprite } from '~/sprite';
-import { TextRenderer } from './text-renderer';
 import * as _text from './text-renderer';
+import { TextRenderer } from './text-renderer';
 
 let text = _text;
 if (import.meta.hot) {
@@ -302,11 +301,21 @@ function updateUniforms(renderer: Renderer, camera: Camera): void {
 	renderer.device.queue.writeBuffer(renderer.uniformBuffer, 0, uniformData);
 }
 
-export function render(
-	renderer: Renderer,
-	camera: Camera,
-	sprites: Sprite[],
-): void {
+export function render(renderer: Renderer, game: Game): void {
+	let sceneState: SceneState;
+	switch (game.scene) {
+		case 'MENU':
+			sceneState = game.menuState;
+			break;
+		case 'BATTLE':
+			sceneState = game.battleState;
+			break;
+		default:
+			throw new Error(`"${game.scene}" is not a valid scene`);
+	}
+
+	const { camera, sprites } = sceneState;
+
 	const {
 		textRenderer,
 		context,
@@ -321,7 +330,7 @@ export function render(
 	updateUniforms(renderer, camera);
 
 	const XX = 0;
-	let YY = GAME_H - 20;
+	let YY = GAME_H - 21;
 
 	text.reset(textRenderer);
 	text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);

@@ -8,14 +8,16 @@ import * as _cam from './renderer/camera';
 import * as _render from './renderer/renderer';
 import { Renderer } from './renderer/renderer';
 import { Sprite } from './sprite';
-import { FSMState, GameState, Player } from './util';
+import { BattleState, FSMState, Game, MenuState, Player } from './util';
 import { GAME_H, GAME_W } from './util/constants';
 
 import spritesheet from '../public/img/spritesheet.json';
 
-let gameState: GameState;
+let game: Game;
+let menuState: MenuState;
+let battleState: BattleState;
 
-let game = _game;
+let ggame = _game;
 let cam = _cam;
 let render = _render;
 let consoleUI = _consoleUI;
@@ -31,8 +33,8 @@ if (import.meta.hot) {
 	import.meta.hot.accept('./game', (mod) => {
 		if (mod) {
 			// @ts-expect-error -- ignore
-			game = mod;
-			game.initGroups(gameState!);
+			ggame = mod;
+			ggame.initGroups(battleState!);
 		}
 	});
 	import.meta.hot.accept('./console-ui', (mod) => {
@@ -102,7 +104,7 @@ async function setupApp(): Promise<void> {
 		heart.offsetX = GAME_W - _heart.offsetX - 10;
 		heart.offsetY = _heart.offsetY;
 		heart.x = -i * 12;
-		sprites.push(heart);
+		// sprites.push(heart);
 	}
 
 	// enemy hearts
@@ -117,7 +119,7 @@ async function setupApp(): Promise<void> {
 		heart.offsetX = _heart.offsetX;
 		heart.offsetY = _heart.offsetY;
 		heart.x = i * 12;
-		heart.setPalette(0, 1);
+		// heart.setPalette(0, 1);
 		sprites.push(heart);
 	}
 
@@ -130,7 +132,13 @@ async function setupApp(): Promise<void> {
 	const spriteGroups = new Map();
 
 	const initialState = FSMState.PLAYER_INPUT;
-	gameState = {
+
+	menuState = {
+		camera,
+		sprites,
+	};
+
+	battleState = {
 		camera,
 		player,
 		sprites,
@@ -140,7 +148,13 @@ async function setupApp(): Promise<void> {
 		nextState: initialState,
 	};
 
-	game.initGroups(gameState);
+	ggame.initGroups(battleState);
+
+	game = {
+		scene: 'MENU',
+		menuState,
+		battleState,
+	};
 
 	const debugInfo = document.createElement('pre');
 	debugInfo.classList.add('debug-info');
@@ -153,11 +167,13 @@ async function setupApp(): Promise<void> {
 	await renderer.init();
 
 	function onUpdate(dt: number): void {
-		game.update(dt, gameState, input);
+		ggame.update(dt, game, input);
 
 		cam.update(camera, input, aspect);
 
 		consoleUI.updateConsoleUI(input);
+
+		if (game.scene === 'MENU') game.scene = 'BATTLE';
 
 		if (input.keyPressed('Enter')) {
 			render.nextPalette();
@@ -166,8 +182,8 @@ async function setupApp(): Promise<void> {
 	}
 
 	function onRender(): void {
-		render.render(renderer, camera, sprites);
-		debugInfo.textContent = game.debugText(gameState);
+		render.render(renderer, game);
+		debugInfo.textContent = ggame.debugText(game);
 	}
 
 	let lastTime: number;

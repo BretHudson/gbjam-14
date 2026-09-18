@@ -38,7 +38,7 @@ export interface Player {
 export enum FSMState {
 	NONE,
 
-	MENU,
+	NULL,
 	INTRO,
 	PLAYER_INPUT,
 	SEE_PLAY,
@@ -52,11 +52,24 @@ export const GROUP = {
 	HUD: 'HUD',
 } as const;
 
-// gonna need raw, screen, and local pos
-export interface GameState {
+export interface Game {
+	scene: 'MENU' | 'BATTLE';
+	menuState: MenuState;
+	battleState: BattleState;
+}
+
+export interface SceneState {
 	camera: Camera;
-	player: Player;
 	sprites: Sprite[];
+}
+
+export interface MenuState extends SceneState {
+	//
+}
+
+// gonna need raw, screen, and local pos
+export interface BattleState extends SceneState {
+	player: Player;
 	spriteGroups: Map<keyof typeof GROUP, SpriteGroup>;
 	lastState: FSMState;
 	state: FSMState;
