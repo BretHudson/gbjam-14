@@ -6,6 +6,16 @@ import type { Pipeline } from './pipelines/pipeline';
 import { PosterizePipeline } from './pipelines/posterize-pipeline';
 import { SpritePipeline } from './pipelines/sprite-pipeline';
 import { Sprite } from '~/sprite';
+import { TextRenderer } from './text-renderer';
+import * as _text from './text-renderer';
+
+let text = _text;
+if (import.meta.hot) {
+	import.meta.hot.accept('./text-renderer', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) text = mod;
+	});
+}
 
 type PipelineConstructor<T extends Pipeline> = new (
 	device: GPUDevice,
@@ -36,10 +46,10 @@ export class Renderer {
 	presentationFormat: GPUTextureFormat;
 	context: GPUCanvasContext;
 
-	textContext: CanvasRenderingContext2D;
-
 	uniformBuffer!: GPUBuffer;
 	uniformData = new Float32Array(instanceFloats);
+
+	textRenderer: TextRenderer;
 
 	constructor(
 		canvas: HTMLCanvasElement,
@@ -63,10 +73,7 @@ export class Renderer {
 
 		this.context = context;
 
-		const textContext = textCanvas.getContext('2d');
-		if (!textContext) throw new Error('Failed to create 2D context');
-		textContext.imageSmoothingEnabled = false;
-		this.textContext = textContext;
+		this.textRenderer = new TextRenderer(textCanvas);
 	}
 
 	depthTexture!: GPUTexture;
@@ -295,31 +302,14 @@ function updateUniforms(renderer: Renderer, camera: Camera): void {
 	renderer.device.queue.writeBuffer(renderer.uniformBuffer, 0, uniformData);
 }
 
-function renderText(renderer: Renderer) {
-	const { textContext: ctx } = renderer;
-
-	ctx.clearRect(0, 0, GAME_W, GAME_H);
-
-	const text = 'testing';
-
-	ctx.fillStyle = 'red';
-	ctx.fillRect(0, 0, 20, 20);
-
-	ctx.font = '12px Monospace';
-	ctx.fillStyle = 'white';
-	ctx.fillText(text, 57 + 0.5, GAME_H - 10 + 0.5);
-
-	ctx.getImageData(0, 0, GAME_W, GAME_H);
-}
-
 export function render(
 	renderer: Renderer,
 	camera: Camera,
 	sprites: Sprite[],
 ): void {
 	const {
+		textRenderer,
 		context,
-		textContext,
 		device,
 		depthTexture,
 		spritePipeline,
@@ -330,9 +320,17 @@ export function render(
 
 	updateUniforms(renderer, camera);
 
-	renderText(renderer);
+	const XX = 0;
+	let YY = GAME_H - 20;
 
-	const textCanvas = textContext.canvas;
+	text.reset(textRenderer);
+	text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);
+	YY += 7;
+	text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
+	YY += 7;
+	text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
+
+	const textCanvas = textRenderer.ctx.canvas;
 	device.queue.copyExternalImageToTexture(
 		{ source: textCanvas, flipY: false },
 		{ texture: spritePipeline.textTexture, premultipliedAlpha: true },

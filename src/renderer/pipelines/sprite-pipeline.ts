@@ -27,7 +27,7 @@ export class SpritePipeline extends Pipeline {
 		);
 		SpritePipeline.texture = texture;
 
-		const { width, height } = renderer.textContext.canvas;
+		const { width, height } = renderer.textRenderer.ctx.canvas;
 		this.textTexture = renderer.device.createTexture({
 			label: 'Text texture',
 			size: [width, height],
