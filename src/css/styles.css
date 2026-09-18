@@ -198,6 +198,7 @@ canvas {
 }
 
 #text {
+	display: none;
 	background-color: transparent;
 }
 

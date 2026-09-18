@@ -121,11 +121,15 @@ async function setupApp(): Promise<void> {
 		sprites.push(heart);
 	}
 
+	const textSprite = new Sprite(0, 0, GAME_W, GAME_H);
+	textSprite.textureId = 1;
+	sprites.push(textSprite);
+
 	console.table(identifiers);
 
 	const spriteGroups = new Map();
 
-	const initialState = FSMState.INTRO;
+	const initialState = FSMState.PLAYER_INPUT;
 	gameState = {
 		camera,
 		player,

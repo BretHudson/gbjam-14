@@ -25,6 +25,7 @@ struct VertexOutput {
     @builtin(position) pos: vec4f,
     @location(0) uv: vec2f,
     @location(1) palette: vec4f,
+    @location(2) texture_id: f32,
 };
 
 const SCALE: f32 = 120.0;
@@ -76,13 +77,17 @@ fn vs(
     out.pos = uniforms.mvp * vec4f(worldPos, 1.0);
     out.uv = spriteUv;
     out.palette = sprite.palette;
+    out.texture_id = sprite.texture_id;
 
     return out;
 }
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-    let sample = textureSample(spritesheet_texture, sprite_sampler, in.uv);
+    var sample = textureSample(spritesheet_texture, sprite_sampler, in.uv);
+    if in.texture_id == 1. {
+        sample = textureSample(text_texture, sprite_sampler, in.uv);
+    }
 
     var index = min(3u, u32(floor(sample.r * 4.0)));
 

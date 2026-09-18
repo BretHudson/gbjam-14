@@ -6,6 +6,7 @@ const [
 	X, Y,
 	TX, TY,
 	W, H,
+	TEX_ID,
 ] = Array.from(
 	{ length: INSTANCE_FLOATS },
 	(_, i) => i,
@@ -122,6 +123,13 @@ export class Sprite {
 	}
 	set height(value) {
 		this._data[H] = value;
+	}
+
+	get textureId() {
+		return this._data[TEX_ID];
+	}
+	set textureId(value) {
+		this._data[TEX_ID] = value;
 	}
 }
 
