@@ -12,7 +12,7 @@ type PipelineConstructor<T extends Pipeline> = new (
 	presentationFormat: GPUTextureFormat,
 ) => T;
 
-const instanceFloats = 16 + 16 + 4;
+const instanceFloats = 16 + 16 + 4 + 4 + 4;
 
 const palettes: [number, number, number, number][][] = [];
 function createPalette(...colors: string[]) {
@@ -36,10 +36,16 @@ export class Renderer {
 	presentationFormat: GPUTextureFormat;
 	context: GPUCanvasContext;
 
+	textContext: CanvasRenderingContext2D;
+
 	uniformBuffer!: GPUBuffer;
 	uniformData = new Float32Array(instanceFloats);
 
-	constructor(canvas: HTMLCanvasElement, device: GPUDevice) {
+	constructor(
+		canvas: HTMLCanvasElement,
+		device: GPUDevice,
+		textCanvas: HTMLCanvasElement,
+	) {
 		this.device = device;
 
 		const context = canvas.getContext('webgpu');
@@ -56,6 +62,11 @@ export class Renderer {
 		this.presentationFormat = format;
 
 		this.context = context;
+
+		const textContext = textCanvas.getContext('2d');
+		if (!textContext) throw new Error('Failed to create 2D context');
+		textContext.imageSmoothingEnabled = false;
+		this.textContext = textContext;
 	}
 
 	depthTexture!: GPUTexture;
@@ -274,9 +285,31 @@ function updateUniforms(renderer: Renderer, camera: Camera): void {
 	const { uniformData } = renderer;
 	uniformData.set(camera.viewProjMatrix);
 	uniformData.set(palettes[palette].flat(), 16);
-	uniformData[32] = elapsed / 1e3;
+	uniformData.set(
+		[SpritePipeline.texture.width, SpritePipeline.texture.height],
+		32,
+	);
+	uniformData.set([GAME_W, GAME_H], 34);
+	uniformData[36] = elapsed / 1e3;
 
 	renderer.device.queue.writeBuffer(renderer.uniformBuffer, 0, uniformData);
+}
+
+function renderText(renderer: Renderer) {
+	const { textContext: ctx } = renderer;
+
+	ctx.clearRect(0, 0, GAME_W, GAME_H);
+
+	const text = 'testing';
+
+	ctx.fillStyle = 'red';
+	ctx.fillRect(0, 0, 20, 20);
+
+	ctx.font = '12px Monospace';
+	ctx.fillStyle = 'white';
+	ctx.fillText(text, 57 + 0.5, GAME_H - 10 + 0.5);
+
+	ctx.getImageData(0, 0, GAME_W, GAME_H);
 }
 
 export function render(
@@ -286,6 +319,7 @@ export function render(
 ): void {
 	const {
 		context,
+		textContext,
 		device,
 		depthTexture,
 		spritePipeline,
@@ -295,6 +329,15 @@ export function render(
 	} = renderer;
 
 	updateUniforms(renderer, camera);
+
+	renderText(renderer);
+
+	const textCanvas = textContext.canvas;
+	device.queue.copyExternalImageToTexture(
+		{ source: textCanvas, flipY: false },
+		{ texture: spritePipeline.textTexture, premultipliedAlpha: true },
+		[textCanvas.width, textCanvas.height],
+	);
 
 	// textures
 	renderer.updateTextures();

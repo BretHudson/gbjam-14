@@ -1,10 +1,21 @@
-const [X, Y, TX, TY, W, H, P] = Array.from({ length: 7 }, (_, i) => i);
+const INSTANCE_FLOATS = 11 + 1; // + 2 is padding
+
+// prettier-ignore
+const [
+	P0, _P1, _P2, _P3,
+	X, Y,
+	TX, TY,
+	W, H,
+] = Array.from(
+	{ length: INSTANCE_FLOATS },
+	(_, i) => i,
+);
 
 export class Sprite {
-	static InstanceFloats = 10;
+	static InstanceFloats = INSTANCE_FLOATS;
 
 	_data = new Float32Array(Sprite.InstanceFloats);
-	palette = this._data.subarray(P, P + 4);
+	palette = this._data.subarray(P0, P0 + 4);
 	visible = true;
 
 	_x: number = 0;

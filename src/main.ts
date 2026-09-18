@@ -1,15 +1,15 @@
 import { vec2 } from 'wgpu-matrix';
 import './css/styles.css';
 
+import * as _consoleUI from './console-ui';
 import * as _game from './game';
 import { Input } from './input';
 import * as _cam from './renderer/camera';
 import * as _render from './renderer/renderer';
-import * as _consoleUI from './console-ui';
 import { Renderer } from './renderer/renderer';
-import { FSMState, GameState, GROUP, Player } from './util';
-import { GAME_H, GAME_W, HUD_H } from './util/constants';
-import { Sprite, SpriteGroup } from './sprite';
+import { Sprite } from './sprite';
+import { FSMState, GameState, Player } from './util';
+import { GAME_H, GAME_W } from './util/constants';
 
 import spritesheet from '../public/img/spritesheet.json';
 
@@ -44,9 +44,12 @@ if (import.meta.hot) {
 
 async function setupApp(): Promise<void> {
 	const canvas = document.getElementById('game') as HTMLCanvasElement;
-
 	canvas.width = GAME_W;
 	canvas.height = GAME_H;
+
+	const textCanvas = document.getElementById('text') as HTMLCanvasElement;
+	textCanvas.width = GAME_W;
+	textCanvas.height = GAME_H;
 
 	let aspect = canvas.width / canvas.height;
 
@@ -142,7 +145,7 @@ async function setupApp(): Promise<void> {
 	const input = new Input(canvas);
 	input.listen();
 
-	const renderer = new Renderer(canvas, device);
+	const renderer = new Renderer(canvas, device, textCanvas);
 	await renderer.init();
 
 	function onUpdate(dt: number): void {

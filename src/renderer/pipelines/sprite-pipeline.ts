@@ -1,4 +1,3 @@
-import { Camera } from '~/renderer/camera';
 import { fetchShader } from '~/renderer/render-utils';
 import type { Renderer, TexturePointer } from '~/renderer/renderer';
 import { Sprite } from '~/sprite';
@@ -8,7 +7,7 @@ import { Pipeline } from './pipeline';
 const shaderFilename = 'sprite.wgsl';
 
 const maxInstances = 128;
-const instanceFloats = Sprite.InstanceFloats + 2;
+const instanceFloats = Sprite.InstanceFloats;
 const spriteBufferData = new Float32Array(instanceFloats * maxInstances);
 
 export class SpritePipeline extends Pipeline {
@@ -18,12 +17,23 @@ export class SpritePipeline extends Pipeline {
 
 	outputTexture!: TexturePointer;
 
+	static texture: GPUTexture;
+	textTexture!: GPUTexture;
+
 	async init(renderer: Renderer): Promise<this> {
 		const texture = await loadTexture(
 			renderer.device,
 			'img/spritesheet.png',
 		);
 		SpritePipeline.texture = texture;
+
+		const { width, height } = renderer.textContext.canvas;
+		this.textTexture = renderer.device.createTexture({
+			label: 'Text texture',
+			size: [width, height],
+			format: 'rgba8unorm',
+			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+		});
 
 		this.outputTexture = renderer.requestTexture();
 
@@ -106,6 +116,15 @@ export class SpritePipeline extends Pipeline {
 						},
 						{
 							binding: 2,
+							visibility: GPUShaderStage.FRAGMENT,
+							texture: {
+								sampleType: 'float',
+								viewDimension: '2d',
+								multisampled: false,
+							},
+						},
+						{
+							binding: 3,
 							visibility: GPUShaderStage.VERTEX,
 							buffer: { type: 'read-only-storage' },
 						},
@@ -168,6 +187,10 @@ export class SpritePipeline extends Pipeline {
 				},
 				{
 					binding: 2,
+					resource: this.textTexture.createView(),
+				},
+				{
+					binding: 3,
 					resource: { buffer: this.spriteBuffer },
 				},
 			],
@@ -175,8 +198,6 @@ export class SpritePipeline extends Pipeline {
 
 		return { pipeline, bindGroup };
 	}
-
-	static texture: GPUTexture;
 
 	async buildPipeline(): Promise<{
 		pipeline: GPURenderPipeline;
@@ -200,14 +221,7 @@ export class SpritePipeline extends Pipeline {
 		const toRender = sprites.filter((sprite) => sprite.visible);
 
 		toRender.forEach((sprite, i) => {
-			spriteBufferData.set(
-				[
-					SpritePipeline.texture.width,
-					SpritePipeline.texture.height,
-					...sprite._data,
-				],
-				i * instanceFloats,
-			);
+			spriteBufferData.set([...sprite._data], i * instanceFloats);
 		});
 
 		this.device.queue.writeBuffer(this.spriteBuffer, 0, spriteBufferData);

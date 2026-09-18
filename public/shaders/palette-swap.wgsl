@@ -1,6 +1,8 @@
 struct Uniforms {
     mvp: mat4x4f,
     palette: array<vec3f, 4>,
+    spritesheet_size: vec2f,
+    text_size: vec2f,
     time: f32,
 };
 

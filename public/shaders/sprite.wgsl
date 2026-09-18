@@ -1,27 +1,25 @@
-struct FaceData {
-    pos: vec3f,
-    face: u32,
-};
-
 struct Uniforms {
     mvp: mat4x4f,
     palette: array<vec3f, 4>,
+    spritesheet_size: vec2f,
+    text_size: vec2f,
     time: f32,
 };
 
 struct SpriteRect {
-    textureSize: vec2f,
+    palette: vec4f,
     pos: vec2f,
     offset: vec2f,
     size: vec2f,
-    palette: vec4f,
+    texture_id: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 
-@group(1) @binding(0) var mySampler: sampler;
-@group(1) @binding(1) var myTexture: texture_2d<f32>;
-@group(1) @binding(2) var<storage, read> spriteUniforms: array<SpriteRect>;
+@group(1) @binding(0) var sprite_sampler: sampler;
+@group(1) @binding(1) var spritesheet_texture: texture_2d<f32>;
+@group(1) @binding(2) var text_texture: texture_2d<f32>;
+@group(1) @binding(3) var<storage, read> sprites: array<SpriteRect>;
 
 struct VertexOutput {
     @builtin(position) pos: vec4f,
@@ -52,18 +50,22 @@ fn vs(
     @builtin(vertex_index) vertex_index: u32,
     @builtin(instance_index) instance_index: u32,
 ) -> VertexOutput {
-    let spriteUniform = spriteUniforms[instance_index];
+    let sprite = sprites[instance_index];
 
     let quad_index = array<u32, 6>(0u, 2u, 1u, 2u, 3u, 1u)[vertex_index];
 
     let uv = vec2f(f32(quad_index & 1u), f32((quad_index >> 1u) & 1u));
 
-    let spriteUv = (spriteUniform.offset + (uv * spriteUniform.size)) / spriteUniform.textureSize;
+    var size = uniforms.spritesheet_size;
+    if sprite.texture_id == 1 {
+        size = uniforms.text_size;
+    }
+    let spriteUv = (sprite.offset + (uv * sprite.size)) / size;
 
     let uv2 = vec2f(
-        uv.x * spriteUniform.size.x,
-        uv.y * spriteUniform.size.y,
-    ) + spriteUniform.pos;
+        uv.x * sprite.size.x,
+        uv.y * sprite.size.y,
+    ) + sprite.pos;
 
     var offset = BASES[0u] * uv2;
 
@@ -73,14 +75,14 @@ fn vs(
     // out.pos = uniforms.mvp * rot2D(uniforms.time * .2) * vec4f(worldPos, 1.0);
     out.pos = uniforms.mvp * vec4f(worldPos, 1.0);
     out.uv = spriteUv;
-    out.palette = spriteUniform.palette;
+    out.palette = sprite.palette;
 
     return out;
 }
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-    let sample = textureSample(myTexture, mySampler, in.uv);
+    let sample = textureSample(spritesheet_texture, sprite_sampler, in.uv);
 
     var index = min(3u, u32(floor(sample.r * 4.0)));
 

@@ -170,6 +170,8 @@ body {
 }
 
 #game-wrapper {
+	display: grid;
+
 	position: relative;
 	/* 2px come from padding */
 	width: calc(162px * var(--scale));
@@ -178,6 +180,11 @@ body {
 	background: black;
 	padding: calc(1px * var(--scale));
 	border-radius: 12px;
+
+	> * {
+		grid-column: 1;
+		grid-row: 1;
+	}
 }
 
 canvas {
@@ -188,6 +195,10 @@ canvas {
 	image-rendering: -webkit-optimize-contrast;
 	image-rendering: crisp-edges;
 	image-rendering: pixelated;
+}
+
+#text {
+	background-color: transparent;
 }
 
 #render-passes {
