@@ -32,7 +32,10 @@ export class SpritePipeline extends Pipeline {
 			label: 'Text texture',
 			size: [width, height],
 			format: 'rgba8unorm',
-			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+			usage:
+				GPUTextureUsage.TEXTURE_BINDING |
+				GPUTextureUsage.COPY_DST |
+				GPUTextureUsage.RENDER_ATTACHMENT,
 		});
 
 		this.outputTexture = renderer.requestTexture();

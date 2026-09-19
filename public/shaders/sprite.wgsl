@@ -84,9 +84,11 @@ fn vs(
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-    var sample = textureSample(spritesheet_texture, sprite_sampler, in.uv);
+    let sample1 = textureSample(spritesheet_texture, sprite_sampler, in.uv);
+    let sample2 = textureSample(text_texture, sprite_sampler, in.uv);
+    var sample = sample1;
     if in.texture_id == 1. {
-        sample = textureSample(text_texture, sprite_sampler, in.uv);
+        sample = sample2;
     }
 
     var index = min(3u, u32(floor(sample.r * 4.0)));
