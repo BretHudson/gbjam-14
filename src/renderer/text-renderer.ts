@@ -32,13 +32,29 @@ export function renderText(
 	text: string,
 	x: number,
 	y: number,
+	color = 3,
 ) {
 	const { ctx, fontTexture } = textRenderer;
 
 	let drawX = x;
 	let drawY = y;
 
-	ctx.filter = 'invert(1)';
+	let percentage = color / 3;
+	switch (color) {
+		case 0:
+			percentage = 0;
+			break;
+		case 1:
+			percentage = 0.22;
+			break;
+		case 2:
+			percentage = 0.66;
+			break;
+		case 3:
+			percentage = 1;
+	}
+
+	ctx.filter = `invert(1) brightness(${percentage * 100}%)`;
 
 	text.split('').forEach((key) => {
 		// const { x, y, w, h } = fontAtlas.get(str)!;

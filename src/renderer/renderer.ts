@@ -1,4 +1,11 @@
-import { Game, hexToRgb, SceneState } from '~/util';
+import {
+	BattleState,
+	Game,
+	hexToRgb,
+	MenuOption,
+	MenuState,
+	SceneState,
+} from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
 import type { Camera } from './camera';
 import { PaletteSwapPipeline } from './pipelines/palette-swap-pipeline';
@@ -301,6 +308,62 @@ function updateUniforms(renderer: Renderer, camera: Camera): void {
 	renderer.device.queue.writeBuffer(renderer.uniformBuffer, 0, uniformData);
 }
 
+function renderMenu(textRenderer: TextRenderer, menuState: MenuState) {
+	const options = [
+		//
+		' @ENGAGE IN BATTLE',
+		'@@[DEBUG] SKIP INTRO',
+		'SWAP COLOR PALETTE',
+		'  @@RESET CONSOLE',
+	];
+
+	const spacing = 10;
+	const XX = 41;
+	let YY = Math.floor((GAME_H - spacing) / 2) - 5;
+
+	const title = 'B@A@T@T@L@E  II';
+	const TEXT_X = XX + 20;
+	const TEXT_Y = YY - 20;
+	for (let xx = -1; xx <= 1; ++xx) {
+		for (let yy = -1; yy <= 1; ++yy) {
+			text.renderText(textRenderer, title, TEXT_X + xx, TEXT_Y + yy, 0);
+		}
+	}
+	text.renderText(textRenderer, title, TEXT_X, TEXT_Y, 3);
+
+	for (let i = 0; i < MenuOption.NUM; ++i) {
+		const selected = i === menuState.option;
+		const prefix = selected ? ' ' : ' ';
+		text.renderText(
+			textRenderer,
+			prefix + options[i],
+			XX,
+			YY,
+			selected ? 2 : 3,
+		);
+		YY += spacing;
+	}
+
+	textRenderer.ctx.fillStyle = '#333';
+	textRenderer.ctx.fillRect(0, GAME_H - 13, GAME_W, 13);
+	textRenderer.ctx.fillStyle = '#000';
+	textRenderer.ctx.fillRect(0, GAME_H - 12, GAME_W, 11);
+
+	text.renderText(textRenderer, ' made by EFAN + BERT ', 0, GAME_H - 9, 2);
+	text.renderText(textRenderer, ' (c) 2026 ', GAME_W - 37, GAME_H - 9, 2);
+}
+
+function renderBattle(textRenderer: TextRenderer, battleState: BattleState) {
+	const XX = 0;
+	let YY = GAME_H - 21;
+
+	text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);
+	YY += 7;
+	text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
+	YY += 7;
+	text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
+}
+
 export function render(renderer: Renderer, game: Game): void {
 	let sceneState: SceneState;
 	switch (game.scene) {
@@ -329,15 +392,18 @@ export function render(renderer: Renderer, game: Game): void {
 
 	updateUniforms(renderer, camera);
 
-	const XX = 0;
-	let YY = GAME_H - 21;
-
 	text.reset(textRenderer);
-	text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);
-	YY += 7;
-	text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
-	YY += 7;
-	text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
+
+	switch (game.scene) {
+		case 'MENU':
+			renderMenu(textRenderer, game.menuState);
+			break;
+		case 'BATTLE':
+			renderBattle(textRenderer, game.battleState);
+			break;
+		default:
+			throw new Error(`"${game.scene}" is not a valid scene`);
+	}
 
 	const textCanvas = textRenderer.ctx.canvas;
 	device.queue.copyExternalImageToTexture(

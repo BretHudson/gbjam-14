@@ -8,7 +8,14 @@ import * as _cam from './renderer/camera';
 import * as _render from './renderer/renderer';
 import { Renderer } from './renderer/renderer';
 import { Sprite } from './sprite';
-import { BattleState, FSMState, Game, MenuState, Player } from './util';
+import {
+	BattleState,
+	FSMState,
+	Game,
+	MenuOption,
+	MenuState,
+	Player,
+} from './util';
 import { GAME_H, GAME_W } from './util/constants';
 
 import spritesheet from '../public/img/spritesheet.json';
@@ -133,9 +140,15 @@ async function setupApp(): Promise<void> {
 
 	const initialState = FSMState.PLAYER_INPUT;
 
+	const menuSprites: Sprite[] = [];
+	menuSprites.push(sprites[0]);
+	menuSprites.push(sprites[1]);
+	menuSprites.push(textSprite);
+
 	menuState = {
 		camera,
-		sprites,
+		sprites: menuSprites,
+		option: MenuOption.PLAY,
 	};
 
 	battleState = {
@@ -151,7 +164,9 @@ async function setupApp(): Promise<void> {
 	ggame.initGroups(battleState);
 
 	game = {
-		scene: 'MENU',
+		scene: null,
+		nextScene: 'MENU',
+		swapPalette: false,
 		menuState,
 		battleState,
 	};
@@ -167,17 +182,37 @@ async function setupApp(): Promise<void> {
 	await renderer.init();
 
 	function onUpdate(dt: number): void {
+		if (game.nextScene !== null) {
+			game.scene = game.nextScene;
+
+			switch (game.nextScene) {
+				case 'MENU':
+					[sprites[0], sprites[1]].forEach((sprite) => {
+						sprite.setPalette(0, 0, 3, 1);
+					});
+					break;
+				case 'BATTLE':
+					[sprites[0], sprites[1]].forEach((sprite) => {
+						sprite.resetPalette();
+					});
+					break;
+			}
+
+			game.nextScene = null;
+		}
+
 		ggame.update(dt, game, input);
 
 		cam.update(camera, input, aspect);
 
 		consoleUI.updateConsoleUI(input);
 
-		if (game.scene === 'MENU') game.scene = 'BATTLE';
+		game.swapPalette ||= input.keyPressed('Enter');
 
-		if (input.keyPressed('Enter')) {
+		if (game.swapPalette) {
 			render.nextPalette();
 			render.updateTime(dt);
+			game.swapPalette = false;
 		}
 	}
 

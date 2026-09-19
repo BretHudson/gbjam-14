@@ -1,7 +1,7 @@
 import { Input } from './input';
 import * as _cam from './renderer/camera';
 import { Sprite, SpriteGroup } from './sprite';
-import { FSMState, Game, BattleState, GROUP } from './util';
+import { FSMState, Game, BattleState, GROUP, MenuOption } from './util';
 import { GAME_H, GAME_W, HUD_H } from './util/constants';
 
 let cam = _cam;
@@ -174,12 +174,44 @@ export function initGroups(gameState: BattleState): void {
 	spriteGroups.set(GROUP.HUD, hudGroup);
 }
 
+function updateMenu(dt: number, game: Game, input: Input): void {
+	const { menuState, battleState } = game;
+
+	if (input.keyPressed('KeyW')) --menuState.option;
+	if (input.keyPressed('KeyS')) ++menuState.option;
+
+	if (input.keyPressed('Space')) {
+		switch (menuState.option) {
+			case MenuOption.PLAY:
+				game.nextScene = 'BATTLE';
+				battleState.nextState = FSMState.INTRO;
+				break;
+			case MenuOption.SKIP_INTRO:
+				game.nextScene = 'BATTLE';
+				battleState.nextState = FSMState.PLAYER_INPUT;
+				break;
+			case MenuOption.PALETTE:
+				console.log(game.swapPalette);
+				game.swapPalette = true;
+				console.log(game.swapPalette);
+				break;
+			case MenuOption.RESET:
+				alert('not yet implemented, sorry');
+				break;
+		}
+	}
+
+	menuState.option = (menuState.option + MenuOption.NUM) % MenuOption.NUM;
+}
+
 let stateStarted = -1;
 function updateBattle(dt: number, game: Game, input: Input): void {
 	const { battleState } = game;
 
 	if (input.keyPressed('Digit1')) battleState.nextState = 1;
 	if (input.keyPressed('Digit2')) battleState.nextState = 2;
+
+	if (input.keyPressed('Escape')) game.nextScene = 'MENU';
 
 	if (battleState.state !== battleState.nextState) {
 		console.warn('switching to ', battleState.nextState);
@@ -329,6 +361,7 @@ function updateBattle(dt: number, game: Game, input: Input): void {
 export function update(dt: number, game: Game, input: Input): void {
 	switch (game.scene) {
 		case 'MENU':
+			updateMenu(dt, game, input);
 			break;
 		case 'BATTLE':
 			updateBattle(dt, game, input);

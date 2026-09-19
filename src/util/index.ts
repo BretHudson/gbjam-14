@@ -35,25 +35,18 @@ export interface Player {
 	health: number;
 }
 
-export enum FSMState {
-	NONE,
-
-	NULL,
-	INTRO,
-	PLAYER_INPUT,
-	SEE_PLAY,
-
-	NUM,
-}
-
 export const GROUP = {
 	BG: 'BG',
 	ENEMY: 'ENEMY',
 	HUD: 'HUD',
 } as const;
 
+type GameScene = 'MENU' | 'BATTLE' | null;
+
 export interface Game {
-	scene: 'MENU' | 'BATTLE';
+	scene: GameScene;
+	nextScene: GameScene;
+	swapPalette: boolean;
 	menuState: MenuState;
 	battleState: BattleState;
 }
@@ -63,8 +56,28 @@ export interface SceneState {
 	sprites: Sprite[];
 }
 
+export enum MenuOption {
+	PLAY,
+	SKIP_INTRO,
+	PALETTE,
+	RESET,
+
+	NUM,
+}
+
 export interface MenuState extends SceneState {
-	//
+	option: MenuOption;
+}
+
+export enum FSMState {
+	NONE,
+
+	NULL,
+	INTRO,
+	PLAYER_INPUT,
+	SEE_PLAY,
+
+	NUM,
 }
 
 // gonna need raw, screen, and local pos
