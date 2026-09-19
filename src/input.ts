@@ -42,15 +42,17 @@ export type ButtonType =
 	| 'A';
 
 export class ControllerInput {
-	keys: Record<ButtonType, KeyState | undefined> = {
-		Left: undefined,
-		Right: undefined,
-		Up: undefined,
-		Down: undefined,
-		Select: undefined,
-		Start: undefined,
-		B: undefined,
-		A: undefined,
+	buttons: Record<ButtonType, KeyState | undefined>;
+
+	mapping: Record<ButtonType, string[]> = {
+		Left: ['KeyA', 'ArrowLeft'],
+		Right: ['KeyD', 'ArrowRight'],
+		Up: ['KeyW', 'ArrowUp'],
+		Down: ['KeyS', 'ArrowDown'],
+		Select: ['Space', 'Backspace'],
+		Start: ['Enter'],
+		B: ['KeyZ', 'KeyK'],
+		A: ['KeyX', 'KeyL'],
 	};
 
 	rawInput: Input;
@@ -58,8 +60,7 @@ export class ControllerInput {
 	constructor(input: Input) {
 		this.rawInput = input;
 
-		// TODO(bret): set this up properly
-		this.keys = {
+		this.buttons = {
 			Left: input._initKey('DPAD_LEFT'),
 			Right: input._initKey('DPAD_RIGHT'),
 			Up: input._initKey('DPAD_UP'),
@@ -79,55 +80,51 @@ export class ControllerInput {
 		input.preUpdate();
 		input.update();
 
-		const copy = (button: ButtonType, key: KeyCode) => {
-			if (
-				input.keyPressed(key) ||
-				input.keyHeld(key) ||
-				input.keyReleased(key)
-			) {
-				Object.assign(this.keys[button]!, input.keys[key]);
+		Object.entries(this.mapping).forEach(([button, keys]) => {
+			const pressed = keys.map((key) => input.keyPressed(key));
+			const held = keys.map((key) => input.keyHeld(key));
+			const released = keys.map((key) => input.keyReleased(key));
+
+			const currentlyHeld = this.keyHeld(button as ButtonType);
+			if (!currentlyHeld) {
+				if (pressed.some(Boolean)) {
+					this.buttons[button as ButtonType]!.state = 3;
+				}
+			} else {
+				if (released.some((r) => r) && !held.some((h) => h)) {
+					this.buttons[button as ButtonType]!.state = 1;
+				}
 			}
-		};
-
-		copy('Up', 'KeyW');
-		copy('Left', 'KeyA');
-		copy('Down', 'KeyS');
-		copy('Right', 'KeyD');
-
-		copy('Select', 'Enter');
-		copy('Start', 'Space');
-
-		copy('B', 'KeyJ');
-		copy('A', 'KeyK');
+		});
 	}
 
 	postUpdate() {
 		const input = this.rawInput;
 
-		Object.entries(this.keys).forEach(([_k]) => {
+		Object.entries(this.buttons).forEach(([_k]) => {
 			const k = _k as ButtonType;
-			if (!this.keys[k]) return;
-			this.keys[k].state &= ~1;
-			this.keys[k].doublePressed = false;
+			if (!this.buttons[k]) return;
+			this.buttons[k].state &= ~1;
+			this.buttons[k].doublePressed = false;
 		});
 
 		input.postUpdate();
 	}
 
 	keyPressed(code: ButtonType): boolean {
-		return this.keys[code]?.state === 3;
+		return this.buttons[code]?.state === 3;
 	}
 
 	keyDoublePressed(code: ButtonType): boolean {
-		return this.keys[code]?.doublePressed ?? false;
+		return this.buttons[code]?.doublePressed ?? false;
 	}
 
 	keyHeld(code: ButtonType): boolean {
-		return ((this.keys[code]?.state ?? 0) & 2) > 0;
+		return ((this.buttons[code]?.state ?? 0) & 2) > 0;
 	}
 
 	keyReleased(code: ButtonType): boolean {
-		return this.keys[code]?.state === 1;
+		return this.buttons[code]?.state === 1;
 	}
 }
 

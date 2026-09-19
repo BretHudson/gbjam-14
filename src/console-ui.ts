@@ -15,12 +15,12 @@ export function initConsoleUI(controller: ControllerInput) {
 	].map((id) => document.getElementById(id)!);
 
 	function pressButton(button: ButtonType) {
-		let key = controller.keys[button]!;
+		let key = controller.buttons[button]!;
 		key.state = 3;
 	}
 
 	function releaseButton(button: ButtonType) {
-		let key = controller.keys[button]!;
+		let key = controller.buttons[button]!;
 		key.state = 1;
 	}
 

@@ -174,11 +174,26 @@ export function initGroups(gameState: BattleState): void {
 	spriteGroups.set(GROUP.HUD, hudGroup);
 }
 
+let timer = 0;
+let timeout = 12;
+
 function updateMenu(dt: number, game: Game, controller: ControllerInput): void {
 	const { menuState, battleState } = game;
 
-	if (controller.keyPressed('Up')) --menuState.option;
-	if (controller.keyPressed('Down')) ++menuState.option;
+	timer = Math.max(0, --timer);
+	function switchOption(delta: number) {
+		if (timer > 0) return;
+
+		menuState.option += delta;
+		timer = timeout;
+	}
+
+	let delta = 0;
+	if (controller.keyHeld('Up')) --delta;
+	if (controller.keyHeld('Down')) ++delta;
+	switchOption(delta);
+
+	if (!controller.keyHeld('Up') && !controller.keyHeld('Down')) timer = 0;
 
 	if (controller.keyPressed('Start') || controller.keyPressed('A')) {
 		switch (menuState.option) {
