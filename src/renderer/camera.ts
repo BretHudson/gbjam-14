@@ -52,7 +52,7 @@ export function follow(
 	cam.target[1] = clamp(cam.target[1], 0, 312 - GAME_H + HUD_H);
 }
 
-export function update(cam: Camera, input: Input, aspect: number): void {
+export function update(cam: Camera, aspect: number): void {
 	cam.eye[0] = cam.target[0];
 	cam.eye[1] = cam.target[1];
 	cam.eye[2] = cam.target[2] + cam.distance;

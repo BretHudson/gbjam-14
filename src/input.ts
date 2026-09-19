@@ -31,6 +31,106 @@ type Listener = {
 	  }
 );
 
+export type ButtonType =
+	| 'Left'
+	| 'Right'
+	| 'Up'
+	| 'Down'
+	| 'Select'
+	| 'Start'
+	| 'B'
+	| 'A';
+
+export class ControllerInput {
+	keys: Record<ButtonType, KeyState | undefined> = {
+		Left: undefined,
+		Right: undefined,
+		Up: undefined,
+		Down: undefined,
+		Select: undefined,
+		Start: undefined,
+		B: undefined,
+		A: undefined,
+	};
+
+	rawInput: Input;
+
+	constructor(input: Input) {
+		this.rawInput = input;
+
+		// TODO(bret): set this up properly
+		this.keys = {
+			Left: input._initKey('DPAD_LEFT'),
+			Right: input._initKey('DPAD_RIGHT'),
+			Up: input._initKey('DPAD_UP'),
+			Down: input._initKey('DPAD_DOWN'),
+
+			Select: input._initKey('BUTTON_SELECT'),
+			Start: input._initKey('BUTTON_START'),
+
+			B: input._initKey('BUTTON_B'),
+			A: input._initKey('BUTTON_A'),
+		};
+	}
+
+	update() {
+		const input = this.rawInput;
+
+		input.preUpdate();
+		input.update();
+
+		const copy = (button: ButtonType, key: KeyCode) => {
+			if (
+				input.keyPressed(key) ||
+				input.keyHeld(key) ||
+				input.keyReleased(key)
+			) {
+				Object.assign(this.keys[button]!, input.keys[key]);
+			}
+		};
+
+		copy('Up', 'KeyW');
+		copy('Left', 'KeyA');
+		copy('Down', 'KeyS');
+		copy('Right', 'KeyD');
+
+		copy('Select', 'Enter');
+		copy('Start', 'Space');
+
+		copy('B', 'KeyJ');
+		copy('A', 'KeyK');
+	}
+
+	postUpdate() {
+		const input = this.rawInput;
+
+		Object.entries(this.keys).forEach(([_k]) => {
+			const k = _k as ButtonType;
+			if (!this.keys[k]) return;
+			this.keys[k].state &= ~1;
+			this.keys[k].doublePressed = false;
+		});
+
+		input.postUpdate();
+	}
+
+	keyPressed(code: ButtonType): boolean {
+		return this.keys[code]?.state === 3;
+	}
+
+	keyDoublePressed(code: ButtonType): boolean {
+		return this.keys[code]?.doublePressed ?? false;
+	}
+
+	keyHeld(code: ButtonType): boolean {
+		return ((this.keys[code]?.state ?? 0) & 2) > 0;
+	}
+
+	keyReleased(code: ButtonType): boolean {
+		return this.keys[code]?.state === 1;
+	}
+}
+
 export class Input {
 	mouseX = -1;
 	mouseY = -1;

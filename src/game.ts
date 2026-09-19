@@ -1,7 +1,7 @@
-import { Input } from './input';
+import { ControllerInput } from './input';
 import * as _cam from './renderer/camera';
 import { Sprite, SpriteGroup } from './sprite';
-import { FSMState, Game, BattleState, GROUP, MenuOption } from './util';
+import { BattleState, FSMState, Game, GROUP, MenuOption } from './util';
 import { GAME_H, GAME_W, HUD_H } from './util/constants';
 
 let cam = _cam;
@@ -174,13 +174,13 @@ export function initGroups(gameState: BattleState): void {
 	spriteGroups.set(GROUP.HUD, hudGroup);
 }
 
-function updateMenu(dt: number, game: Game, input: Input): void {
+function updateMenu(dt: number, game: Game, controller: ControllerInput): void {
 	const { menuState, battleState } = game;
 
-	if (input.keyPressed('KeyW')) --menuState.option;
-	if (input.keyPressed('KeyS')) ++menuState.option;
+	if (controller.keyPressed('Up')) --menuState.option;
+	if (controller.keyPressed('Down')) ++menuState.option;
 
-	if (input.keyPressed('Space')) {
+	if (controller.keyPressed('Start')) {
 		switch (menuState.option) {
 			case MenuOption.PLAY:
 				game.nextScene = 'BATTLE';
@@ -205,8 +205,14 @@ function updateMenu(dt: number, game: Game, input: Input): void {
 }
 
 let stateStarted = -1;
-function updateBattle(dt: number, game: Game, input: Input): void {
+function updateBattle(
+	dt: number,
+	game: Game,
+	controller: ControllerInput,
+): void {
 	const { battleState } = game;
+
+	const { rawInput: input } = controller;
 
 	if (input.keyPressed('Digit1')) battleState.nextState = 1;
 	if (input.keyPressed('Digit2')) battleState.nextState = 2;
@@ -261,23 +267,26 @@ function updateBattle(dt: number, game: Game, input: Input): void {
 			let direction = Direction.None;
 
 			switch (true) {
-				case input.keyHeld('KeyD'):
+				case controller.keyHeld('Right'):
 					direction = Direction.Right;
 					break;
-				case input.keyHeld('KeyS'):
+				case controller.keyHeld('Down'):
 					direction = Direction.Down;
 					break;
-				case input.keyHeld('KeyA'):
+				case controller.keyHeld('Left'):
 					direction = Direction.Left;
 					break;
-				case input.keyHeld('KeyW'):
+				case controller.keyHeld('Up'):
 					direction = Direction.Up;
 					break;
 			}
 
 			// const canPlay = direction !== Direction.None;
 			const canPlay = true;
-			if (canPlay && input.keyPressed('Space')) {
+			if (
+				canPlay &&
+				(controller.keyPressed('B') || controller.keyPressed('A'))
+			) {
 				battleState.nextState = FSMState.SEE_PLAY;
 			}
 		}
@@ -358,13 +367,17 @@ function updateBattle(dt: number, game: Game, input: Input): void {
 	battleState.lastState = battleState.state;
 }
 
-export function update(dt: number, game: Game, input: Input): void {
+export function update(
+	dt: number,
+	game: Game,
+	controller: ControllerInput,
+): void {
 	switch (game.scene) {
 		case 'MENU':
-			updateMenu(dt, game, input);
+			updateMenu(dt, game, controller);
 			break;
 		case 'BATTLE':
-			updateBattle(dt, game, input);
+			updateBattle(dt, game, controller);
 			break;
 		default:
 			throw new Error(`"${game.scene}" is not a valid scene`);

@@ -95,12 +95,18 @@ body {
 }
 
 .dpad-button {
+	--bg: #515352;
+
 	width: 100%;
-	background: #515352;
+	background: var(--bg);
 	aspect-ratio: 1 / 1;
 	border: var(--border);
+	cursor: pointer;
+	&:hover {
+		--bg: #6b6d6c;
+	}
 	&.pressed {
-		background: #4f7863;
+		--bg: #4f7863;
 	}
 }
 
@@ -118,6 +124,10 @@ body {
 	border: 0;
 	grid-area: C;
 	z-index: 1;
+
+	&:hover {
+		--bg: #515352;
+	}
 }
 
 #dpad-right {
@@ -131,13 +141,19 @@ body {
 }
 
 .start-select {
+	--bg: #97928c;
+
 	width: calc(2rem * var(--scale));
 	aspect-ratio: 4 / 1;
 	border-radius: 10ex;
 	border: var(--border);
-	background: #97928c;
+	background: var(--bg);
+	cursor: pointer;
+	&:hover {
+		--bg: #b4b0ab;
+	}
 	&.pressed {
-		background: #658e8e;
+		--bg: #658e8e;
 	}
 }
 
@@ -150,14 +166,19 @@ body {
 }
 
 .a-b-button {
+	--bg: #8b4065;
+
 	width: 100%;
+	background: var(--bg);
 	aspect-ratio: 1 / 1;
 	border-radius: 50%;
-	background: #8b4065;
 	border: var(--border);
 
+	&:hover {
+		--bg: #aa6e8a;
+	}
 	&.pressed {
-		background: #aa6e8a;
+		--bg: #9b1551;
 	}
 }
 

@@ -3,7 +3,7 @@ import './css/styles.css';
 
 import * as _consoleUI from './console-ui';
 import * as _game from './game';
-import { Input } from './input';
+import { ControllerInput, Input } from './input';
 import * as _cam from './renderer/camera';
 import * as _render from './renderer/renderer';
 import { Renderer } from './renderer/renderer';
@@ -47,7 +47,7 @@ if (import.meta.hot) {
 	import.meta.hot.accept('./console-ui', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) consoleUI = mod;
-		consoleUI.initConsoleUI();
+		// consoleUI.initConsoleUI();
 	});
 }
 
@@ -178,8 +178,12 @@ async function setupApp(): Promise<void> {
 	const input = new Input(canvas);
 	input.listen();
 
+	const controllerInput = new ControllerInput(input);
+
 	const renderer = new Renderer(canvas, device, textCanvas);
 	await renderer.init();
+
+	consoleUI.initConsoleUI(controllerInput);
 
 	function onUpdate(dt: number): void {
 		if (game.nextScene !== null) {
@@ -201,11 +205,11 @@ async function setupApp(): Promise<void> {
 			game.nextScene = null;
 		}
 
-		ggame.update(dt, game, input);
+		ggame.update(dt, game, controllerInput);
 
-		cam.update(camera, input, aspect);
+		cam.update(camera, aspect);
 
-		consoleUI.updateConsoleUI(input);
+		consoleUI.updateConsoleUI(controllerInput);
 
 		game.swapPalette ||= input.keyPressed('Enter');
 
@@ -227,11 +231,10 @@ async function setupApp(): Promise<void> {
 		const dt = t - lastTime;
 		lastTime = t;
 
-		input.preUpdate();
-		input.update();
+		controllerInput.update();
 		onUpdate(dt);
 		onRender();
-		input.postUpdate();
+		controllerInput.postUpdate();
 
 		window.requestAnimationFrame(loop);
 	}
