@@ -137,8 +137,6 @@ export class Input {
 	keys: Record<string, KeyState | undefined> = {};
 	shift = false;
 
-	mode: 'play' | 'type' = 'play';
-
 	#doubleClickWindow = 0.2;
 	mouse = {
 		left: false,
@@ -163,6 +161,8 @@ export class Input {
 			{ passive: false },
 		);
 	}
+
+	active = false;
 
 	addListenerToTarget<T extends Listener>(
 		target: HTMLElement,
@@ -195,6 +195,9 @@ export class Input {
 		this.listeners.set(this.target, listeners);
 		this.initMouseListeners();
 		this.initKeyListeners();
+
+		this.target.addEventListener('blur', () => this.onBlur());
+		this.target.addEventListener('focus', () => this.onFocus());
 	}
 
 	unlisten(): void {
@@ -215,15 +218,13 @@ export class Input {
 	}
 
 	onBlur(): void {
+		this.active = false;
 		this.#reset();
-
-		this.unlisten();
 	}
 
 	onFocus(): void {
+		this.active = true;
 		this.#reset();
-
-		this.listen();
 	}
 
 	preUpdate(): void {
@@ -250,6 +251,8 @@ export class Input {
 		const { target } = this;
 
 		const onDown = (e: MouseEvent): void => {
+			if (!this.active) return;
+
 			switch (e.button) {
 				case 0:
 					this.mouse.left = true;
@@ -264,6 +267,8 @@ export class Input {
 		};
 
 		const onUp = (e: MouseEvent): void => {
+			if (!this.active) return;
+
 			switch (e.button) {
 				case 0:
 					this.mouse.left = false;
@@ -278,6 +283,8 @@ export class Input {
 		};
 
 		const onMove = (e: MouseEvent): void => {
+			if (!this.active) return;
+
 			this.mouseMoveX += e.movementX;
 			this.mouseMoveY += e.movementY;
 			this.mouseX = e.clientX;
@@ -285,23 +292,20 @@ export class Input {
 			// requestFrame();
 		};
 
-		const onWheel = (e: WheelEvent): void => {
-			e.preventDefault();
+		// const onWheel = (e: WheelEvent): void => {
+		// 	if (!this.active) return;
 
-			this.mouse.wheel = Math.sign(e.deltaY);
+		// 	e.preventDefault();
 
-			/// below is from WebGPU Fundamentals
-			// const helper = cam.getUpdateHelper();
-			// helper.dolly(cam.radius * 0.001 * e.deltaY);
-			// requestFrame();
-		};
+		// 	this.mouse.wheel = Math.sign(e.deltaY);
+		// };
 
 		this.addListenerToTarget(target, 'pointerdown', onDown);
 		this.addListenerToTarget(target, 'pointermove', onMove);
 		this.addListenerToTarget(target, 'pointercancel', onUp);
 		this.addListenerToTarget(target, 'pointerup', onUp);
 		this.addListenerToTarget(target, 'lostpointercapture', onUp);
-		this.addListenerToTarget(target, 'wheel', onWheel, { passive: false });
+		// this.addListenerToTarget(target, 'wheel', onWheel, { passive: false });
 	}
 
 	keyPressed(code: KeyCode): boolean {
@@ -336,7 +340,7 @@ export class Input {
 		const { target } = this;
 
 		const onKeyDown = (e: KeyboardEvent): void => {
-			if (this.mode === 'type') return;
+			if (!this.active) return;
 
 			e.preventDefault();
 
@@ -360,7 +364,7 @@ export class Input {
 		};
 
 		const onKeyUp = (e: KeyboardEvent): void => {
-			if (this.mode === 'type') return;
+			if (!this.active) return;
 
 			e.preventDefault();
 

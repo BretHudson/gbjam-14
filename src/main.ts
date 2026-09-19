@@ -205,6 +205,10 @@ async function setupApp(): Promise<void> {
 			game.nextScene = null;
 		}
 
+		if (input.keyPressed('Escape')) {
+			input.active = !input.active;
+		}
+
 		ggame.update(dt, game, controllerInput);
 
 		cam.update(camera, aspect);
