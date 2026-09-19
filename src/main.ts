@@ -211,7 +211,7 @@ async function setupApp(): Promise<void> {
 
 		consoleUI.updateConsoleUI(controllerInput);
 
-		game.swapPalette ||= input.keyPressed('Enter');
+		game.swapPalette ||= controllerInput.keyPressed('Select');
 
 		if (game.swapPalette) {
 			render.nextPalette();

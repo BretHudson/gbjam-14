@@ -180,7 +180,7 @@ function updateMenu(dt: number, game: Game, controller: ControllerInput): void {
 	if (controller.keyPressed('Up')) --menuState.option;
 	if (controller.keyPressed('Down')) ++menuState.option;
 
-	if (controller.keyPressed('Start')) {
+	if (controller.keyPressed('Start') || controller.keyPressed('A')) {
 		switch (menuState.option) {
 			case MenuOption.PLAY:
 				game.nextScene = 'BATTLE';
