@@ -94,7 +94,7 @@ export function update(
 				game.swapPalette = true;
 				break;
 			case MenuOption.RESET:
-				alert('not yet implemented, sorry');
+				game.nextScene = 'BOOT';
 				break;
 		}
 	}

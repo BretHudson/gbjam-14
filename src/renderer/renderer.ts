@@ -1,3 +1,4 @@
+import * as _boot from '~/scenes/boot-scene';
 import * as _battle from '~/scenes/battle-scene';
 import * as _debug from '~/scenes/debug-scene';
 import * as _menu from '~/scenes/menu-scene';
@@ -12,13 +13,22 @@ import * as _text from './text-renderer';
 import { TextRenderer } from './text-renderer';
 
 let text = _text;
-let debug = _debug;
+let boot = _boot;
 let menu = _menu;
 let battle = _battle;
+let debug = _debug;
 if (import.meta.hot) {
 	import.meta.hot.accept('./text-renderer', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) text = mod;
+	});
+	import.meta.hot.accept('~/scenes/battle-scene', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) battle = mod;
+	});
+	import.meta.hot.accept('~/scenes/boot-scene', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) boot = mod;
 	});
 	import.meta.hot.accept('~/scenes/debug-scene', (mod) => {
 		// @ts-expect-error -- ignore
@@ -27,10 +37,6 @@ if (import.meta.hot) {
 	import.meta.hot.accept('~/scenes/menu-scene', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) menu = mod;
-	});
-	import.meta.hot.accept('~/scenes/battle-scene', (mod) => {
-		// @ts-expect-error -- ignore
-		if (mod) battle = mod;
 	});
 }
 
@@ -323,14 +329,17 @@ function updateUniforms(renderer: Renderer, camera: Camera): void {
 export function render(renderer: Renderer, game: Game): void {
 	let sceneState: SceneState;
 	switch (game.scene) {
-		case 'DEBUG':
-			sceneState = game.debugState;
+		case 'BOOT':
+			sceneState = game.bootState;
 			break;
 		case 'MENU':
 			sceneState = game.menuState;
 			break;
 		case 'BATTLE':
 			sceneState = game.battleState;
+			break;
+		case 'DEBUG':
+			sceneState = game.debugState;
 			break;
 		default:
 			throw new Error(`"${game.scene}" is not a valid scene`);
@@ -354,14 +363,16 @@ export function render(renderer: Renderer, game: Game): void {
 	text.reset(textRenderer);
 
 	switch (game.scene) {
-		case 'DEBUG':
-			debug.render(textRenderer, game.debugState);
-			break;
+		case 'BOOT':
+			boot.render(textRenderer, game.bootState);
 		case 'MENU':
 			menu.render(textRenderer, game.menuState);
 			break;
 		case 'BATTLE':
 			battle.render(textRenderer, game.battleState);
+			break;
+		case 'DEBUG':
+			debug.render(textRenderer, game.debugState);
 			break;
 		default:
 			throw new Error(`"${game.scene}" is not a valid scene`);

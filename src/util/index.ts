@@ -1,5 +1,6 @@
 import { Camera } from '~/renderer/camera';
 import type { BattleState } from '~/scenes/battle-scene';
+import type { BootState } from '~/scenes/boot-scene';
 import type { DebugState } from '~/scenes/debug-scene';
 import type { MenuState } from '~/scenes/menu-scene';
 import { Sprite, SpriteGroup } from '~/sprite';
@@ -33,15 +34,16 @@ export function clamp(v: number, min: number, max: number) {
 
 export type Palette = [number, number, number, number];
 
-type GameScene = 'DEBUG' | 'MENU' | 'BATTLE' | null;
+type GameScene = 'BOOT' | 'MENU' | 'BATTLE' | 'DEBUG' | null;
 
 export interface Game {
 	scene: GameScene;
 	nextScene: GameScene;
 	swapPalette: boolean;
-	debugState: DebugState;
+	bootState: BootState;
 	menuState: MenuState;
 	battleState: BattleState;
+	debugState: DebugState;
 
 	frameId: number;
 	curGenerator: Generator | null;

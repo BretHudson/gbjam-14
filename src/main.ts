@@ -8,6 +8,7 @@ import * as _render from '~/renderer/renderer';
 import { Renderer } from '~/renderer/renderer';
 
 import * as _battle from '~/scenes/battle-scene';
+import * as _boot from '~/scenes/boot-scene';
 import * as _debug from '~/scenes/debug-scene';
 import * as _menu from '~/scenes/menu-scene';
 
@@ -15,15 +16,16 @@ import { Sprite, SpriteData } from '~/sprite';
 import { Game, SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
 
-import spritesheet from '../public/img/spritesheet.json';
 import { parseAsepriteData, spriteFromData } from '~/renderer/render-utils';
+import spritesheet from '../public/img/spritesheet.json';
 
 let game: Game;
 
 let ggame = _game;
-let debug = _debug;
+let boot = _boot;
 let menu = _menu;
 let battle = _battle;
+let debug = _debug;
 let cam = _cam;
 let render = _render;
 let consoleUI = _consoleUI;
@@ -44,6 +46,20 @@ if (import.meta.hot) {
 		// consoleUI.initConsoleUI();
 	});
 
+	import.meta.hot.accept('~/scenes/battle-scene', (mod) => {
+		if (mod) {
+			// @ts-expect-error -- ignore
+			battle = mod;
+			game.battleState = battle.init(cam.create(), groups);
+		}
+	});
+	import.meta.hot.accept('~/scenes/boot-scene', (mod) => {
+		if (mod) {
+			// @ts-expect-error -- ignore
+			boot = mod;
+			game.bootState = boot.init(cam.create(), groups);
+		}
+	});
 	import.meta.hot.accept('~/scenes/debug-scene', (mod) => {
 		if (mod) {
 			// @ts-expect-error -- ignore
@@ -56,13 +72,6 @@ if (import.meta.hot) {
 			// @ts-expect-error -- ignore
 			menu = mod;
 			game.menuState = menu.init(cam.create(), groups);
-		}
-	});
-	import.meta.hot.accept('~/scenes/battle-scene', (mod) => {
-		if (mod) {
-			// @ts-expect-error -- ignore
-			battle = mod;
-			game.battleState = battle.init(cam.create(), groups);
 		}
 	});
 }
@@ -142,13 +151,15 @@ async function setupApp(): Promise<void> {
 
 	game = {
 		scene: null,
+		nextScene: 'BOOT',
 		// nextScene: 'DEBUG',
-		nextScene: 'MENU',
+		// nextScene: 'MENU',
 		// nextScene: 'BATTLE',
 		swapPalette: false,
-		debugState: debug.init(cam.create(), groups),
+		bootState: boot.init(cam.create(), groups),
 		menuState: menu.init(cam.create(), groups),
 		battleState: battle.init(cam.create(), groups),
+		debugState: debug.init(cam.create(), groups),
 
 		frameId: 0,
 		curGenerator: null,
@@ -174,9 +185,9 @@ async function setupApp(): Promise<void> {
 
 			let sceneState: SceneState;
 			switch (game.nextScene) {
-				case 'DEBUG':
-					sceneState = game.debugState;
-					debug.reset(game.debugState);
+				case 'BOOT':
+					sceneState = game.bootState;
+					boot.reset(game.bootState);
 					break;
 				case 'MENU':
 					sceneState = game.menuState;
@@ -185,6 +196,10 @@ async function setupApp(): Promise<void> {
 				case 'BATTLE':
 					sceneState = game.battleState;
 					battle.reset(game.battleState);
+					break;
+				case 'DEBUG':
+					sceneState = game.debugState;
+					debug.reset(game.debugState);
 					break;
 			}
 

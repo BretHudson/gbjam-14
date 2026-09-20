@@ -1,15 +1,25 @@
 import { ControllerInput } from '~/input';
 import * as _battle from '~/scenes/battle-scene';
+import * as _boot from '~/scenes/boot-scene';
 import * as _debug from '~/scenes/debug-scene';
 import * as _menu from '~/scenes/menu-scene';
 import { Game } from '~/util';
 import * as _cam from './renderer/camera';
 
-let debug = _debug;
+let boot = _boot;
 let menu = _menu;
 let battle = _battle;
+let debug = _debug;
 let cam = _cam;
 if (import.meta.hot) {
+	import.meta.hot.accept('~/scenes/battle-scene', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) battle = mod;
+	});
+	import.meta.hot.accept('~/scenes/boot-scene', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) boot = mod;
+	});
 	import.meta.hot.accept('~/scenes/debug-scene', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) debug = mod;
@@ -17,10 +27,6 @@ if (import.meta.hot) {
 	import.meta.hot.accept('~/scenes/menu-scene', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) menu = mod;
-	});
-	import.meta.hot.accept('~/scenes/battle-scene', (mod) => {
-		// @ts-expect-error -- ignore
-		if (mod) battle = mod;
 	});
 	import.meta.hot.accept('./renderer/camera', (mod) => {
 		// @ts-expect-error -- ignore
@@ -34,9 +40,9 @@ export function update(
 	controller: ControllerInput,
 ): void {
 	switch (game.scene) {
-		case 'DEBUG':
-			debug.update(dt, game, controller);
-			cam.update(game.debugState.camera, 10 / 9);
+		case 'BOOT':
+			boot.update(dt, game, controller);
+			cam.update(game.bootState.camera, 10 / 9);
 			break;
 		case 'MENU':
 			menu.update(dt, game, controller);
@@ -45,6 +51,10 @@ export function update(
 		case 'BATTLE':
 			battle.update(dt, game, controller);
 			cam.update(game.battleState.camera, 10 / 9);
+			break;
+		case 'DEBUG':
+			debug.update(dt, game, controller);
+			cam.update(game.debugState.camera, 10 / 9);
 			break;
 		default:
 			throw new Error(`"${game.scene}" is not a valid scene`);
