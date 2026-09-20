@@ -174,11 +174,14 @@ export function render(renderer: Renderer, menuState: MenuState) {
 
 	const colors = ['#000', '#333', '#aaa', '#fff'];
 
+	const FOOTER_Y = GAME_H - 14;
+	textRenderer.ctx.fillStyle = colors[2];
+	textRenderer.ctx.fillRect(0, FOOTER_Y - 1, GAME_W, 15);
 	textRenderer.ctx.fillStyle = colors[3];
-	textRenderer.ctx.fillRect(0, GAME_H - 13, GAME_W, 13);
+	textRenderer.ctx.fillRect(0, FOOTER_Y, GAME_W, 13);
 	textRenderer.ctx.fillStyle = colors[1];
-	textRenderer.ctx.fillRect(0, GAME_H - 12, GAME_W, 11);
+	textRenderer.ctx.fillRect(0, FOOTER_Y + 1, GAME_W, 11);
 
-	text.renderText(textRenderer, ' made by EFAN + BERT ', 0, GAME_H - 9, 3);
-	text.renderTextRight(textRenderer, ' (c) 2026 ', GAME_W, GAME_H - 9, 3);
+	text.renderText(textRenderer, ' made by EFAN + BERT ', 0, FOOTER_Y + 4, 3);
+	text.renderTextRight(textRenderer, ' (c) 2026 ', GAME_W, FOOTER_Y + 4, 3);
 }
