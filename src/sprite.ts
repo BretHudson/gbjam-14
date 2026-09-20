@@ -136,6 +136,12 @@ export class Sprite {
 export class SpriteGroup {
 	sprites: Sprite[] = [];
 
+	set visible(value: boolean) {
+		this.sprites.forEach((sprite) => {
+			sprite.visible = value;
+		});
+	}
+
 	constructor(...sprites: Sprite[]) {
 		this.sprites = sprites;
 	}

@@ -42,14 +42,16 @@ export function init(camera: Camera, spriteData: SpriteData): MenuState {
 	textSprite.textureId = 1;
 	menuState.sprites.push(textSprite);
 
-	return menuState;
-}
-
-export function reset(menuState: MenuState) {
 	const { sprites } = menuState;
 	[sprites[0], sprites[1]].forEach((sprite) => {
 		sprite.setPalette(0, 0, 3, 1);
 	});
+
+	return menuState;
+}
+
+export function reset(menuState: MenuState) {
+	menuState.option = 0;
 }
 
 let timer = 0;

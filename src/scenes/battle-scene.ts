@@ -44,31 +44,26 @@ enum Direction {
 export interface BattleState extends SceneState {
 	playerHealth: number;
 	enemyHealth: number;
-	spriteGroups2: Map<keyof typeof GROUP, SpriteGroup>;
 	lastState: FSMState;
 	state: FSMState;
 	nextState: FSMState;
-}
 
-export function initGroups(gameState: BattleState): void {
-	const { spriteGroups2, sprites } = gameState;
-	spriteGroups2.clear();
-
-	const bgGroup = new SpriteGroup(...sprites.slice(0, 4));
-	spriteGroups2.set(GROUP.BG, bgGroup);
-	const enemyGroup = new SpriteGroup(...sprites.slice(4, 4 + 5));
-	spriteGroups2.set(GROUP.ENEMY, enemyGroup);
-	const hudGroup = new SpriteGroup(...sprites.slice(12));
-	spriteGroups2.set(GROUP.HUD, hudGroup);
+	enemyState: 'IDLE' | 'PREPARE' | 'ATTACK' | 'HURT';
+	enemyPose: SpriteGroup;
 }
 
 export function init(camera: Camera, spriteData: SpriteData): BattleState {
 	const groups = getSpriteGroups(
 		spriteData,
 		'Group 2',
-		'UI ELEMENTS',
+		'Hearts',
 		'PREPARE SPRITE',
 		'Neutral/Idle WIP',
+		'Left ATK - WIP',
+		'Right ATK - WIP',
+		'Down ATK',
+		'Up ATK',
+		'HURT',
 	);
 
 	const initialState = FSMState.PLAYER_INPUT;
@@ -78,13 +73,13 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 		enemyHealth: 4,
 		spriteGroups: groups,
 		sprites: groups.flatMap((group) => group.sprites),
-		spriteGroups2: new Map(),
 		lastState: FSMState.NONE,
 		state: FSMState.NONE,
 		nextState: initialState,
-	};
 
-	initGroups(battleState);
+		enemyState: 'IDLE',
+		enemyPose: groups[3],
+	};
 
 	console.warn(battleState.sprites.length);
 
@@ -92,11 +87,8 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 }
 
 export function reset(battleState: BattleState) {
-	// game.battleState.sprites = sprites;
-	//
-	// [sprites[0], sprites[1]].forEach((sprite) => {
-	// 	sprite.resetPalette();
-	// });
+	battleState.state = FSMState.NONE;
+	battleState.enemyState = 'IDLE';
 }
 
 let stateStarted = -1;
@@ -109,8 +101,9 @@ export function update(
 
 	const { rawInput: input } = controller;
 
-	if (input.keyPressed('Digit1')) battleState.nextState = 1;
-	if (input.keyPressed('Digit2')) battleState.nextState = 2;
+	for (let i = 0; i < FSMState.NUM; ++i) {
+		if (input.keyPressed(`Digit${i}`)) battleState.nextState = i;
+	}
 
 	if (input.keyPressed('Escape')) game.nextScene = 'MENU';
 
@@ -119,7 +112,7 @@ export function update(
 		battleState.state = battleState.nextState;
 	}
 
-	const { camera, sprites, lastState, state } = battleState;
+	const { camera, sprites, spriteGroups, lastState, state } = battleState;
 
 	if (lastState !== state) {
 		stateStarted = frameId;
@@ -135,7 +128,7 @@ export function update(
 			// TODO(bret): WIND_UP
 
 			case FSMState.PLAYER_INPUT:
-				// gameState.nextState = 2;
+				// battleState.nextState = 2;
 				break;
 
 			case FSMState.SEE_PLAY:
@@ -206,16 +199,58 @@ export function update(
 	// sprites.forEach((sprite) => (sprite.y = 0));
 	// sprites.forEach((sprite) => (sprite.visible = true));
 
-	text1.visible = false;
-	text2.visible = false;
-	text3.visible = false;
+	// text1.visible = false;
+	// text2.visible = false;
+	// text3.visible = false;
+
+	// 3-6 = hearts
+
+	// 7 is eye white
+	// 8 is eye
+	// 9 is body
+	// 10 is right arm
 
 	// sprites.forEach((sprite) => (sprite.visible = false));
 	// eyeWhites.visible = true;
 
 	// bg
 	const bounce = Math.floor(frameId / 60) % 2;
-	[body, eyeWhites, arm].forEach((sprite) => {
+
+	const [
+		_a,
+		_b,
+		posePrepare,
+		poseIdle,
+		poseLeft,
+		poseRight,
+		poseDown,
+		poseUp,
+		poseHurt,
+	] = spriteGroups; //.map(({ sprites }) => sprites);
+
+	const poses = [
+		posePrepare,
+		poseIdle,
+		poseLeft,
+		poseRight,
+		poseDown,
+		poseUp,
+		poseHurt,
+	].flat();
+
+	poses.forEach((pose) => (pose.visible = false));
+
+	switch (battleState.enemyState) {
+		case 'IDLE':
+			battleState.enemyPose = poseIdle;
+			break;
+		case 'HURT':
+			battleState.enemyPose = poseHurt;
+			break;
+	}
+
+	battleState.enemyPose.sprites.forEach((sprite) => {
+		sprite.visible = true;
 		sprite.y = bounce ? -1 : 0;
 	});
 
@@ -267,49 +302,88 @@ export function render(textRenderer: TextRenderer, battleState: BattleState) {
 	text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
 }
 
+function* chain(...generators: Generator[]) {
+	while (generators.length) {
+		const g = generators.shift()!;
+		yield* g;
+	}
+}
+
+function* parallel(...generators: Generator[]) {
+	while (generators.filter((g) => g.next().done).length < generators.length) {
+		yield;
+	}
+}
+
 function* runIntro(battleState: BattleState) {
-	const { sprites } = battleState;
+	const { sprites, spriteGroups } = battleState;
 
 	sprites.forEach((sprite) => (sprite.visible = false));
 
-	yield* fadeIn(battleState.spriteGroups2.get(GROUP.BG)!.sprites, 30);
+	// yield* fadeIn(battleState.spriteGroups2.get(GROUP.BG)!.sprites, 30);
+
+	const enemy = spriteGroups[2].sprites;
+
+	const fadeInEye = fadeIn(enemy.slice(0, 2), 30);
+	const fadeInBody = fadeIn(enemy.slice(2), 30);
+	const fadeInBg = fadeIn(spriteGroups[0].sprites, 30);
+
+	yield* parallel(fadeInEye, fadeInBody, chain(pause(60), fadeInBg));
 	yield* pause();
 
-	yield* fadeIn2(battleState.spriteGroups2.get(GROUP.HUD)!.sprites);
-	yield* pause(30);
-
-	yield* fadeInReverse(battleState.spriteGroups2.get(GROUP.ENEMY)!.sprites);
+	yield* fadeIn2(spriteGroups[1].sprites);
 	yield* pause();
 
 	battleState.nextState = FSMState.PLAYER_INPUT;
 }
 
-function* runSeePlay(gameState: BattleState) {
-	const _bg = gameState.spriteGroups2.get(GROUP.BG)!;
+function* runSeePlay(battleState: BattleState) {
+	const _bg = battleState.spriteGroups[0];
 	const bg = new SpriteGroup(..._bg.sprites.slice(0, 2));
-	const enemy = gameState.spriteGroups2.get(GROUP.ENEMY)!;
 
-	bg.setPalette(0, 0, 1, 2);
+	const before = battleState.enemyState;
+	battleState.enemyState = 'HURT';
 
-	for (let i = 0; i < 2; ++i) {
+	const [
+		_a,
+		_b,
+		posePrepare,
+		poseIdle,
+		poseLeft,
+		poseRight,
+		poseDown,
+		poseUp,
+		poseHurt,
+	] = battleState.spriteGroups;
+	const enemy = poseHurt;
+
+	bg.setPalette(3);
+
+	yield* pause(15);
+
+	for (let i = 0; i < 1; ++i) {
 		// bg.setPalette(0);
 		enemy.setPalette(3);
+		bg.setPalette(0);
 		yield* pause(15);
 
-		if (i === 1) break;
+		// if (i === 1) break;
 
 		// bg.setPalette(2);
-		enemy.setPalette(0);
+		enemy.resetPalette();
+		bg.setPalette(3);
 		yield* pause(15);
 	}
 
 	// bg.setPalette(1);
 	// yield* pause(15);
 
+	battleState.enemyState = before;
+
 	bg.resetPalette();
 	enemy.resetPalette();
 
 	yield* pause(15);
 
-	gameState.nextState = FSMState.PLAYER_INPUT;
+	battleState.nextState = FSMState.PLAYER_INPUT;
 }

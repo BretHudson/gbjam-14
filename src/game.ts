@@ -52,12 +52,13 @@ export function update(
 }
 
 export function debugText(game: Game) {
-	const { battleState: gameState } = game;
+	const { battleState } = game;
 
-	const key = Object.values(FSMState)[gameState.state];
+	const key = Object.values(FSMState)[battleState.state];
 
 	return `\
 Scene: ${game.scene}
-State: ${gameState.state} (${key})
+State: ${battleState.state} (${key})
+Enemy: ${battleState.enemyState}
 `;
 }

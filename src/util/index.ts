@@ -1,5 +1,5 @@
 import { Camera } from '~/renderer/camera';
-import { BattleState } from '~/scenes/battle-scene';
+import type { BattleState } from '~/scenes/battle-scene';
 import type { DebugState } from '~/scenes/debug-scene';
 import type { MenuState } from '~/scenes/menu-scene';
 import { Sprite, SpriteGroup } from '~/sprite';
@@ -32,8 +32,6 @@ export function clamp(v: number, min: number, max: number) {
 }
 
 type GameScene = 'DEBUG' | 'MENU' | 'BATTLE' | null;
-
-export { GROUP, type BattleState } from '~/scenes/battle-scene';
 
 export interface Game {
 	scene: GameScene;

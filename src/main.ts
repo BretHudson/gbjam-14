@@ -1,22 +1,22 @@
-import './css/styles.css';
+import '~/css/styles.css';
 
-import * as _consoleUI from './console-ui';
-import * as _game from './game';
-import { ControllerInput, Input } from './input';
-import * as _cam from './renderer/camera';
-import * as _render from './renderer/renderer';
-import { Renderer } from './renderer/renderer';
+import * as _consoleUI from '~/console-ui';
+import * as _game from '~/game';
+import { ControllerInput, Input } from '~/input';
+import * as _cam from '~/renderer/camera';
+import * as _render from '~/renderer/renderer';
+import { Renderer } from '~/renderer/renderer';
 
-import * as _battle from './scenes/battle-scene';
-import * as _debug from './scenes/debug-scene';
-import * as _menu from './scenes/menu-scene';
+import * as _battle from '~/scenes/battle-scene';
+import * as _debug from '~/scenes/debug-scene';
+import * as _menu from '~/scenes/menu-scene';
 
-import { Sprite, SpriteData } from './sprite';
-import { Game, SceneState } from './util';
-import { GAME_H, GAME_W } from './util/constants';
+import { Sprite, SpriteData } from '~/sprite';
+import { Game, SceneState } from '~/util';
+import { GAME_H, GAME_W } from '~/util/constants';
 
 import spritesheet from '../public/img/spritesheet.json';
-import { parseAsepriteData, spriteFromData } from './renderer/render-utils';
+import { parseAsepriteData, spriteFromData } from '~/renderer/render-utils';
 
 let game: Game;
 
@@ -30,35 +30,35 @@ let consoleUI = _consoleUI;
 const sprites: Sprite[] = [];
 let groups: SpriteData;
 if (import.meta.hot) {
-	import.meta.hot.accept('./renderer/camera', (mod) => {
+	import.meta.hot.accept('~/renderer/camera', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) cam = mod;
 	});
-	import.meta.hot.accept('./renderer/renderer', (mod) => {
+	import.meta.hot.accept('~/renderer/renderer', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) render = mod;
 	});
-	import.meta.hot.accept('./console-ui', (mod) => {
+	import.meta.hot.accept('~/console-ui', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) consoleUI = mod;
 		// consoleUI.initConsoleUI();
 	});
 
-	import.meta.hot.accept('./scenes/debug-scene', (mod) => {
+	import.meta.hot.accept('~/scenes/debug-scene', (mod) => {
 		if (mod) {
 			// @ts-expect-error -- ignore
 			debug = mod;
 			game.debugState = debug.init(cam.create(), groups);
 		}
 	});
-	import.meta.hot.accept('./scenes/menu-scene', (mod) => {
+	import.meta.hot.accept('~/scenes/menu-scene', (mod) => {
 		if (mod) {
 			// @ts-expect-error -- ignore
 			menu = mod;
 			game.menuState = menu.init(cam.create(), groups);
 		}
 	});
-	import.meta.hot.accept('./scenes/battle-scene', (mod) => {
+	import.meta.hot.accept('~/scenes/battle-scene', (mod) => {
 		if (mod) {
 			// @ts-expect-error -- ignore
 			battle = mod;
