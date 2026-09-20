@@ -43,6 +43,9 @@ export function update(
 	controller: ControllerInput,
 ): void {
 	// update debug state
+	game.debugState.sprites.forEach((sprite) => {
+		sprite.setMaxLevel(3);
+	});
 }
 
 export function render(textRenderer: TextRenderer, debugState: DebugState) {

@@ -1,3 +1,5 @@
+import { clamp } from './util';
+
 const INSTANCE_FLOATS = 11 + 1; // + 2 is padding
 
 // prettier-ignore
@@ -16,6 +18,7 @@ export class Sprite {
 	static InstanceFloats = INSTANCE_FLOATS;
 
 	_data = new Float32Array(Sprite.InstanceFloats);
+	#defaultPalette = new Float32Array(4);
 	palette = this._data.subarray(P0, P0 + 4);
 	visible = true;
 
@@ -40,15 +43,76 @@ export class Sprite {
 		this.width = width;
 		this.height = height;
 
-		this.palette.set([0, 1, 2, 3]);
+		this.#defaultPalette.set([0, 1, 2, 3]);
+		this.palette.set(this.#defaultPalette);
 	}
 
 	setPalette(c0: number, c1: number = c0, c2: number = c1, c3: number = c2) {
 		this.palette.set([c0, c1, c2, c3]);
 	}
 
+	setDefaultPalette(
+		c0: number,
+		c1: number = c0,
+		c2: number = c1,
+		c3: number = c2,
+	) {
+		this.#defaultPalette.set([c0, c1, c2, c3]);
+		this.resetPalette();
+	}
+
+	setMinLevel(level: number) {
+		const palette = Array.from({ length: 4 }, (_, i) => {
+			return Math.max(this.#defaultPalette[i], level);
+		}) as [number, number, number, number];
+
+		this.setPalette(...palette);
+	}
+
+	setMaxLevel(level: number) {
+		const palette = Array.from({ length: 4 }, (_, i) => {
+			return Math.min(this.#defaultPalette[i], level);
+		}) as [number, number, number, number];
+
+		this.setPalette(...palette);
+	}
+
+	setShift(shift: number) {
+		const palette = Array.from({ length: 4 }, (_P1, i) => {
+			return clamp(this.#defaultPalette[i] - shift, 0, 3);
+		}) as [number, number, number, number];
+
+		this.setPalette(...palette);
+	}
+
+	setInvShift(shift: number) {
+		const palette = Array.from({ length: 4 }, (_P1, i) => {
+			return clamp(this.#defaultPalette[i] + shift, 0, 3);
+		}) as [number, number, number, number];
+
+		this.setPalette(...palette);
+	}
+
+	setMax(level: number) {
+		this.setPalette(
+			clamp(this.#defaultPalette[0], 0, 3),
+			clamp(this.#defaultPalette[1], 0, 3),
+			clamp(this.#defaultPalette[2], 0, 3),
+			clamp(this.#defaultPalette[3], 0, 3),
+		);
+	}
+
+	setMin(level: number) {
+		//
+	}
+
 	resetPalette() {
-		this.setPalette(0, 1, 2, 3);
+		this.setPalette(
+			this.#defaultPalette[0],
+			this.#defaultPalette[1],
+			this.#defaultPalette[2],
+			this.#defaultPalette[3],
+		);
 	}
 
 	cyclePalette() {

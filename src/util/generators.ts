@@ -1,29 +1,37 @@
-import { Sprite } from '~/sprite';
+import type { Sprite } from '~/sprite';
 
 export function* pause(duration = 15) {
 	for (let i = 0; i < duration; ++i) yield;
 }
 
+export function* repeat(count: number, callback: (i: number) => Generator) {
+	for (let i = 0; i < count; ++i) {
+		yield* callback(i);
+	}
+}
+
+export function* chain(...generators: Generator[]) {
+	while (generators.length) {
+		const g = generators.shift()!;
+		yield* g;
+	}
+}
+
+export function* parallel(...generators: Generator[]) {
+	while (generators.filter((g) => g.next().done).length < generators.length) {
+		yield;
+	}
+}
+
 export function* fadeIn(sprites: Sprite[], duration = 15) {
 	sprites.forEach((sprite) => {
 		sprite.visible = true;
-		sprite.setPalette(0);
+		sprite.setShift(3);
 	});
-
-	const palette = Array.from({ length: 4 }, (_, i) => i) as [
-		number,
-		number,
-		number,
-		number,
-	];
 
 	for (let c = 3; c >= 0; --c) {
 		yield* pause(duration);
-
-		for (let i = 0; i < 4; ++i) {
-			palette[i] = Math.max(0, i - c);
-		}
-		sprites.forEach((sprite) => sprite.setPalette(...palette));
+		sprites.forEach((sprite) => sprite.setShift(c));
 	}
 }
 
@@ -80,6 +88,6 @@ export function* fadeIn2(sprites: Sprite[], duration = 15) {
 		for (let i = 0; i < 4; ++i) {
 			palette[i] = Math.min(i, c);
 		}
-		sprites.forEach((sprite) => sprite.setPalette(...palette));
+		sprites.forEach((sprite) => sprite.setMaxLevel(c));
 	}
 }

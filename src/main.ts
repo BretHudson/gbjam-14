@@ -135,8 +135,6 @@ async function setupApp(): Promise<void> {
 	textSprite.textureId = 1;
 	sprites.push(textSprite);
 
-	console.warn('a', sprites.length);
-
 	const menuSprites: Sprite[] = [];
 	menuSprites.push(sprites[0]);
 	menuSprites.push(sprites[1]);
@@ -193,16 +191,13 @@ async function setupApp(): Promise<void> {
 			game.nextScene = null;
 		}
 
-		if (input.keyPressed('Escape')) {
-			input.active = !input.active;
-		}
-
 		ggame.update(dt, game, controllerInput);
 
 		cam.update(camera, aspect);
 
 		consoleUI.updateConsoleUI(controllerInput);
 
+		if (input.keyPressed('Escape')) input.active = !input.active;
 		game.swapPalette ||= controllerInput.keyPressed('Select');
 
 		if (game.swapPalette) {

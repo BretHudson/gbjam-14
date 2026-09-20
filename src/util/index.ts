@@ -51,17 +51,6 @@ export interface SceneState {
 	sprites: Sprite[];
 }
 
-export enum FSMState {
-	NONE,
-
-	NULL,
-	INTRO,
-	PLAYER_INPUT,
-	SEE_PLAY,
-
-	NUM,
-}
-
 export function hexToRgb(hex: string): [number, number, number, number] {
 	const str = hex.replace('#', '').trim();
 	const rHex = str.substring(0, 2);

@@ -4,7 +4,7 @@ import { getSpriteGroups } from '~/renderer/render-utils';
 import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
 import { Sprite, type SpriteData } from '~/sprite';
-import { FSMState, type Game, type SceneState } from '~/util';
+import { type Game, type SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
 
 let text = _text;
@@ -29,7 +29,7 @@ export interface MenuState extends SceneState {
 }
 
 export function init(camera: Camera, spriteData: SpriteData): MenuState {
-	const groups = getSpriteGroups(spriteData, 'Group 2', 'Hearts');
+	const groups = getSpriteGroups(spriteData, 'Group 2');
 
 	const menuState: MenuState = {
 		camera,
@@ -38,11 +38,13 @@ export function init(camera: Camera, spriteData: SpriteData): MenuState {
 		option: MenuOption.PLAY,
 	};
 
+	const { sprites } = menuState;
+	sprites.pop();
+
 	const textSprite = new Sprite(0, 0, GAME_W, GAME_H);
 	textSprite.textureId = 1;
-	menuState.sprites.push(textSprite);
+	sprites.push(textSprite);
 
-	const { sprites } = menuState;
 	[sprites[0], sprites[1]].forEach((sprite) => {
 		sprite.setPalette(0, 0, 3, 1);
 	});
@@ -83,16 +85,13 @@ export function update(
 		switch (menuState.option) {
 			case MenuOption.PLAY:
 				game.nextScene = 'BATTLE';
-				battleState.nextState = FSMState.INTRO;
 				break;
 			case MenuOption.SKIP_INTRO:
 				game.nextScene = 'BATTLE';
-				battleState.nextState = FSMState.PLAYER_INPUT;
+				battleState.skipIntro = true;
 				break;
 			case MenuOption.PALETTE:
-				console.log(game.swapPalette);
 				game.swapPalette = true;
-				console.log(game.swapPalette);
 				break;
 			case MenuOption.RESET:
 				alert('not yet implemented, sorry');

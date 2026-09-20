@@ -2,7 +2,7 @@ import { ControllerInput } from '~/input';
 import * as _battle from '~/scenes/battle-scene';
 import * as _debug from '~/scenes/debug-scene';
 import * as _menu from '~/scenes/menu-scene';
-import { FSMState, Game } from '~/util';
+import { Game } from '~/util';
 import * as _cam from './renderer/camera';
 
 let debug = _debug;
@@ -54,7 +54,7 @@ export function update(
 export function debugText(game: Game) {
 	const { battleState } = game;
 
-	const key = Object.values(FSMState)[battleState.state];
+	const key = Object.values(_battle.FSMState)[battleState.state];
 
 	return `\
 Scene: ${game.scene}
