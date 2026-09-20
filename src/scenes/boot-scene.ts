@@ -18,19 +18,32 @@ if (import.meta.hot) {
 
 export interface BootState extends SceneState {
 	entered: boolean;
+	splash: HTMLImageElement;
+	ready: boolean;
+	opacity: number;
 }
 
 export function init(camera: Camera, spriteData: SpriteData): BootState {
 	const spriteGroups = getSpriteGroups(spriteData, 'PREPARE SPRITE');
+
+	const splash = new Image(160, 144);
+	splash.onload = function () {
+		console.log('loaded splash');
+		bootState.ready = true;
+	};
+	splash.src = 'img/gbjam-14-splash.png';
 
 	const bootState: BootState = {
 		camera,
 		entered: true,
 		spriteGroups,
 		sprites: spriteGroups.flatMap((group) => group.sprites),
+		splash,
+		ready: false,
+		opacity: 0,
 	};
 
-	spriteGroups[0].setPalette(0);
+	// spriteGroups[0].setPalette(0);
 
 	return bootState;
 }
@@ -40,19 +53,9 @@ export function reset(bootState: BootState) {
 }
 
 function* runAnimate(game: Game) {
-	const { bootState } = game;
+	// const { bootState } = game;
 
-	bootState.spriteGroups[0].setPalette(0);
-	for (let i = 0; i < 4; ++i) {
-		bootState.spriteGroups[0].setPalette(i);
-		yield* pause(15);
-	}
-	for (let i = 4; i >= 0; --i) {
-		bootState.spriteGroups[0].setPalette(i);
-		yield* pause(15);
-	}
-
-	yield* pause(15);
+	yield* pause(60);
 
 	game.nextScene = 'MENU';
 }
@@ -71,19 +74,13 @@ export function update(
 	}
 
 	if (game.curGenerator) {
-		console.log('gennnn');
 		const res = game.curGenerator.next();
 		if (res.done) game.curGenerator = null;
 	}
 }
 
 export function render(textRenderer: TextRenderer, bootState: BootState) {
-	const XX = 0;
-	let YY = GAME_H - 21;
+	const { ctx } = textRenderer;
 
-	text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY, 2);
-	YY += 7;
-	text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
-	YY += 7;
-	text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
+	ctx.drawImage(bootState.splash, 0, 0);
 }

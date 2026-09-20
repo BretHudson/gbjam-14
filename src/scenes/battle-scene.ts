@@ -159,10 +159,6 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 
 	setEnemyPose(battleState, 'PREPARE');
 
-	const textSprite = new Sprite(0, 0, GAME_W, GAME_H);
-	textSprite.textureId = 1;
-	battleState.sprites.push(textSprite);
-
 	return battleState;
 }
 

@@ -27,6 +27,36 @@ export function reset(textRenderer: TextRenderer) {
 	ctx.clearRect(0, 0, GAME_W, GAME_H);
 }
 
+export function renderTextCentered(
+	textRenderer: TextRenderer,
+	text: string,
+	x: number,
+	y: number,
+	color = 3,
+) {
+	const width = text
+		.split('')
+		.reduce((acc, key) => acc + fontAtlas[key].w, 0);
+
+	const drawX = x + Math.ceil((GAME_W - width) / 2);
+	renderText(textRenderer, text, drawX, y, color);
+}
+
+export function renderTextRight(
+	textRenderer: TextRenderer,
+	text: string,
+	x: number,
+	y: number,
+	color = 3,
+) {
+	const width = text
+		.split('')
+		.reduce((acc, key) => acc + fontAtlas[key].w, 0);
+
+	const drawX = x - width;
+	renderText(textRenderer, text, drawX, y, color);
+}
+
 export function renderText(
 	textRenderer: TextRenderer,
 	text: string,
@@ -52,6 +82,7 @@ export function renderText(
 			break;
 		case 3:
 			percentage = 1;
+			break;
 	}
 
 	ctx.filter = `invert(1) brightness(${percentage * 100}%)`;

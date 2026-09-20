@@ -2,8 +2,8 @@ import type { ControllerInput } from '~/input';
 import { Camera } from '~/renderer/camera';
 import { getSpriteGroups } from '~/renderer/render-utils';
 import { Renderer } from '~/renderer/renderer';
-import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
+import { TextRenderer } from '~/renderer/text-renderer';
 import { Sprite, type SpriteData } from '~/sprite';
 import { type Game, type SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
@@ -18,8 +18,8 @@ if (import.meta.hot) {
 
 export enum MenuOption {
 	PLAY,
-	SKIP_INTRO,
 	PALETTE,
+	ORIGINAL,
 	RESET,
 
 	NUM,
@@ -30,21 +30,17 @@ export interface MenuState extends SceneState {
 }
 
 export function init(camera: Camera, spriteData: SpriteData): MenuState {
-	const groups = getSpriteGroups(spriteData, 'Group 2');
+	const spriteGroups = getSpriteGroups(spriteData, 'Group 2');
 
 	const menuState: MenuState = {
 		camera,
-		spriteGroups: groups,
-		sprites: groups.flatMap((group) => group.sprites),
+		spriteGroups,
+		sprites: spriteGroups.flatMap((group) => group.sprites),
 		option: MenuOption.PLAY,
 	};
 
 	const { sprites } = menuState;
 	sprites.pop();
-
-	const textSprite = new Sprite(0, 0, GAME_W, GAME_H);
-	textSprite.textureId = 1;
-	sprites.push(textSprite);
 
 	[sprites[0], sprites[1]].forEach((sprite) => {
 		sprite.setPalette(0, 0, 3, 1);
@@ -72,9 +68,11 @@ export function update(
 	timerY = Math.max(0, --timerY);
 	function switchOption(delta: number) {
 		if (timerY > 0) return;
+		if (deltaY === 0) return;
 
 		menuState.option += delta;
 		timerY = timeout;
+		frameId = 0;
 	}
 
 	let deltaX = 0;
@@ -104,13 +102,13 @@ export function update(
 		switch (menuState.option) {
 			case MenuOption.PLAY:
 				game.nextScene = 'BATTLE';
-				break;
-			case MenuOption.SKIP_INTRO:
-				game.nextScene = 'BATTLE';
-				battleState.skipIntro = true;
+				battleState.skipIntro = deltaX !== 0;
 				break;
 			case MenuOption.PALETTE:
 				game.swapPalette = 1;
+				break;
+			case MenuOption.ORIGINAL:
+				window.open('https://brethudson.com/battle/', '_blank');
 				break;
 			case MenuOption.RESET:
 				game.nextScene = 'BOOT';
@@ -121,6 +119,23 @@ export function update(
 	menuState.option = (menuState.option + MenuOption.NUM) % MenuOption.NUM;
 }
 
+function renderTextWithOutline(
+	textRenderer: TextRenderer,
+	str: string,
+	x: number,
+	y: number,
+	color: number,
+	outline = 0,
+) {
+	for (let xx = -1; xx <= 1; ++xx) {
+		for (let yy = -1; yy <= 1; ++yy) {
+			text.renderTextCentered(textRenderer, str, x + xx, y + yy, outline);
+		}
+	}
+	text.renderTextCentered(textRenderer, str, x, y, color);
+}
+
+let frameId = 0;
 export function render(renderer: Renderer, menuState: MenuState) {
 	const { textRenderer } = renderer;
 
@@ -129,35 +144,34 @@ export function render(renderer: Renderer, menuState: MenuState) {
 
 	const options = [
 		//
-		' @ENGAGE IN BATTLE',
-		'@@[DEBUG] SKIP INTRO',
+		'ENGAGE IN BATTLE',
 		`SWAP PALETTE (@${index}@/@${total}@)`,
-		'  @@RESET CONSOLE',
+		'PLAY THE ORIGINAL',
+		'RESET CONSOLE',
 	];
 
+	let str = options[menuState.option];
+	const space = Math.floor(frameId++ / 30) % 2 ? '@@@' : '@@@@@';
+	str = `>${space}` + str + `${space}<`;
+	options[menuState.option] = str;
+
 	const spacing = 10;
-	const XX = 41;
 	let YY = Math.floor((GAME_H - spacing) / 2) - 5;
 
 	const title = 'B@A@T@T@L@E  II';
-	const TEXT_X = XX + 20;
 	const TEXT_Y = YY - 20;
-	for (let xx = -1; xx <= 1; ++xx) {
-		for (let yy = -1; yy <= 1; ++yy) {
-			text.renderText(textRenderer, title, TEXT_X + xx, TEXT_Y + yy, 0);
-		}
-	}
-	text.renderText(textRenderer, title, TEXT_X, TEXT_Y, 3);
+	renderTextWithOutline(textRenderer, title, 0, TEXT_Y, 3);
 
 	for (let i = 0; i < MenuOption.NUM; ++i) {
 		const selected = i === menuState.option;
 		const prefix = selected ? ' ' : ' ';
-		text.renderText(
+		renderTextWithOutline(
 			textRenderer,
 			prefix + options[i],
-			XX,
+			0,
 			YY,
-			selected ? 2 : 3,
+			3,
+			selected ? 0 : 1,
 		);
 		YY += spacing;
 	}
@@ -168,5 +182,5 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	textRenderer.ctx.fillRect(0, GAME_H - 12, GAME_W, 11);
 
 	text.renderText(textRenderer, ' made by EFAN + BERT ', 0, GAME_H - 9, 2);
-	text.renderText(textRenderer, ' (c) 2026 ', GAME_W - 37, GAME_H - 9, 2);
+	text.renderTextRight(textRenderer, ' (c) 2026 ', GAME_W, GAME_H - 9, 2);
 }

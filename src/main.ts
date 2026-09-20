@@ -21,6 +21,12 @@ import spritesheet from '../public/img/spritesheet.json';
 
 let game: Game;
 
+function addTextSprite(sprites: Sprite[]) {
+	const textSprite = new Sprite(0, 0, GAME_W, GAME_H);
+	textSprite.textureId = 1;
+	sprites.push(textSprite);
+}
+
 let ggame = _game;
 let boot = _boot;
 let menu = _menu;
@@ -51,6 +57,7 @@ if (import.meta.hot) {
 			// @ts-expect-error -- ignore
 			battle = mod;
 			game.battleState = battle.init(cam.create(), groups);
+			addTextSprite(game.battleState.sprites);
 		}
 	});
 	import.meta.hot.accept('~/scenes/boot-scene', (mod) => {
@@ -58,6 +65,7 @@ if (import.meta.hot) {
 			// @ts-expect-error -- ignore
 			boot = mod;
 			game.bootState = boot.init(cam.create(), groups);
+			addTextSprite(game.bootState.sprites);
 		}
 	});
 	import.meta.hot.accept('~/scenes/debug-scene', (mod) => {
@@ -65,6 +73,7 @@ if (import.meta.hot) {
 			// @ts-expect-error -- ignore
 			debug = mod;
 			game.debugState = debug.init(cam.create(), groups);
+			addTextSprite(game.debugState.sprites);
 		}
 	});
 	import.meta.hot.accept('~/scenes/menu-scene', (mod) => {
@@ -72,6 +81,7 @@ if (import.meta.hot) {
 			// @ts-expect-error -- ignore
 			menu = mod;
 			game.menuState = menu.init(cam.create(), groups);
+			addTextSprite(game.menuState.sprites);
 		}
 	});
 }
@@ -151,8 +161,8 @@ async function setupApp(): Promise<void> {
 
 	game = {
 		scene: null,
-		nextScene: 'BOOT',
 		// nextScene: 'DEBUG',
+		nextScene: 'BOOT',
 		// nextScene: 'MENU',
 		// nextScene: 'BATTLE',
 		swapPalette: 0,
@@ -164,6 +174,11 @@ async function setupApp(): Promise<void> {
 		frameId: 0,
 		curGenerator: null,
 	};
+
+	addTextSprite(game.bootState.sprites);
+	addTextSprite(game.menuState.sprites);
+	addTextSprite(game.battleState.sprites);
+	addTextSprite(game.debugState.sprites);
 
 	const debugInfo = document.createElement('pre');
 	debugInfo.classList.add('debug-info');
