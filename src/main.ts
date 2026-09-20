@@ -6,22 +6,24 @@ import { ControllerInput, Input } from './input';
 import * as _cam from './renderer/camera';
 import * as _render from './renderer/renderer';
 import { Renderer } from './renderer/renderer';
-import type { DebugState } from './scenes/debug-scene';
+
+import * as _battle from './scenes/battle-scene';
 import * as _debug from './scenes/debug-scene';
+import * as _menu from './scenes/menu-scene';
+
 import { Sprite, SpriteData } from './sprite';
-import { BattleState, FSMState, Game, MenuOption, MenuState } from './util';
+import { Game, SceneState } from './util';
 import { GAME_H, GAME_W } from './util/constants';
 
 import spritesheet from '../public/img/spritesheet.json';
 import { parseAsepriteData, spriteFromData } from './renderer/render-utils';
 
 let game: Game;
-let debugState: DebugState;
-let menuState: MenuState;
-let battleState: BattleState;
 
 let ggame = _game;
 let debug = _debug;
+let menu = _menu;
+let battle = _battle;
 let cam = _cam;
 let render = _render;
 let consoleUI = _consoleUI;
@@ -36,23 +38,31 @@ if (import.meta.hot) {
 		// @ts-expect-error -- ignore
 		if (mod) render = mod;
 	});
-	import.meta.hot.accept('./game', (mod) => {
-		if (mod) {
-			// @ts-expect-error -- ignore
-			ggame = mod;
-			ggame.initGroups(battleState!);
-		}
-	});
 	import.meta.hot.accept('./console-ui', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) consoleUI = mod;
 		// consoleUI.initConsoleUI();
 	});
+
 	import.meta.hot.accept('./scenes/debug-scene', (mod) => {
 		if (mod) {
 			// @ts-expect-error -- ignore
 			debug = mod;
-			debug.init(debugState, sprites, groups);
+			game.debugState = debug.init(cam.create(), groups);
+		}
+	});
+	import.meta.hot.accept('./scenes/menu-scene', (mod) => {
+		if (mod) {
+			// @ts-expect-error -- ignore
+			menu = mod;
+			game.menuState = menu.init(cam.create(), groups);
+		}
+	});
+	import.meta.hot.accept('./scenes/battle-scene', (mod) => {
+		if (mod) {
+			// @ts-expect-error -- ignore
+			battle = mod;
+			game.battleState = battle.init(cam.create(), groups);
 		}
 	});
 }
@@ -125,49 +135,25 @@ async function setupApp(): Promise<void> {
 	textSprite.textureId = 1;
 	sprites.push(textSprite);
 
-	const spriteGroups = new Map();
-
-	const initialState = FSMState.PLAYER_INPUT;
+	console.warn('a', sprites.length);
 
 	const menuSprites: Sprite[] = [];
 	menuSprites.push(sprites[0]);
 	menuSprites.push(sprites[1]);
 	menuSprites.push(textSprite);
 
-	debugState = {
-		camera,
-		spriteGroups: [],
-		sprites: [],
-	};
-
-	menuState = {
-		camera,
-		spriteGroups: [],
-		sprites: menuSprites,
-		option: MenuOption.PLAY,
-	};
-
-	battleState = {
-		camera,
-		playerHealth: 4,
-		enemyHealth: 4,
-		sprites,
-		spriteGroups,
-		lastState: FSMState.NONE,
-		state: FSMState.NONE,
-		nextState: initialState,
-	};
-
-	ggame.initGroups(battleState);
-
 	game = {
 		scene: null,
-		// nextScene: 'MENU',
-		nextScene: 'DEBUG',
+		// nextScene: 'DEBUG',
+		nextScene: 'MENU',
+		// nextScene: 'BATTLE',
 		swapPalette: false,
-		debugState,
-		menuState,
-		battleState,
+		debugState: debug.init(cam.create(), groups),
+		menuState: menu.init(cam.create(), groups),
+		battleState: battle.init(cam.create(), groups),
+
+		frameId: 0,
+		curGenerator: null,
 	};
 
 	const debugInfo = document.createElement('pre');
@@ -188,19 +174,19 @@ async function setupApp(): Promise<void> {
 		if (game.nextScene !== null) {
 			game.scene = game.nextScene;
 
+			let sceneState: SceneState;
 			switch (game.nextScene) {
 				case 'DEBUG':
-					debug.init(debugState, sprites, groups);
+					sceneState = game.debugState;
+					debug.reset(game.debugState);
 					break;
 				case 'MENU':
-					[sprites[0], sprites[1]].forEach((sprite) => {
-						sprite.setPalette(0, 0, 3, 1);
-					});
+					sceneState = game.menuState;
+					menu.reset(game.menuState);
 					break;
 				case 'BATTLE':
-					[sprites[0], sprites[1]].forEach((sprite) => {
-						sprite.resetPalette();
-					});
+					sceneState = game.battleState;
+					battle.reset(game.battleState);
 					break;
 			}
 

@@ -1,6 +1,5 @@
 import type { Mat4, Vec3 } from 'wgpu-matrix';
 import { mat4 } from 'wgpu-matrix';
-import { Input } from '~/input';
 import { clamp } from '~/util';
 import { GAME_H, GAME_W, HUD_H } from '~/util/constants';
 
@@ -32,9 +31,9 @@ export function create(): Camera {
 
 		fovY: Math.PI / 4,
 
-		viewMatrix: mat4.create(),
-		projMatrix: mat4.create(),
-		viewProjMatrix: mat4.create(),
+		viewMatrix: mat4.identity(),
+		projMatrix: mat4.identity(),
+		viewProjMatrix: mat4.identity(),
 	};
 }
 

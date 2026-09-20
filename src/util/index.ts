@@ -1,5 +1,7 @@
 import { Camera } from '~/renderer/camera';
+import { BattleState } from '~/scenes/battle-scene';
 import type { DebugState } from '~/scenes/debug-scene';
+import type { MenuState } from '~/scenes/menu-scene';
 import { Sprite, SpriteGroup } from '~/sprite';
 
 export async function loadTexture(device: GPUDevice, url: string) {
@@ -29,13 +31,9 @@ export function clamp(v: number, min: number, max: number) {
 	return Math.min(Math.max(v, min), max);
 }
 
-export const GROUP = {
-	BG: 'BG',
-	ENEMY: 'ENEMY',
-	HUD: 'HUD',
-} as const;
-
 type GameScene = 'DEBUG' | 'MENU' | 'BATTLE' | null;
+
+export { GROUP, type BattleState } from '~/scenes/battle-scene';
 
 export interface Game {
 	scene: GameScene;
@@ -44,25 +42,15 @@ export interface Game {
 	debugState: DebugState;
 	menuState: MenuState;
 	battleState: BattleState;
+
+	frameId: number;
+	curGenerator: Generator | null;
 }
 
 export interface SceneState {
 	camera: Camera;
 	spriteGroups: SpriteGroup[];
 	sprites: Sprite[];
-}
-
-export enum MenuOption {
-	PLAY,
-	SKIP_INTRO,
-	PALETTE,
-	RESET,
-
-	NUM,
-}
-
-export interface MenuState extends SceneState {
-	option: MenuOption;
 }
 
 export enum FSMState {
@@ -74,16 +62,6 @@ export enum FSMState {
 	SEE_PLAY,
 
 	NUM,
-}
-
-// gonna need raw, screen, and local pos
-export interface BattleState extends SceneState {
-	playerHealth: number;
-	enemyHealth: number;
-	spriteGroups: Map<keyof typeof GROUP, SpriteGroup>;
-	lastState: FSMState;
-	state: FSMState;
-	nextState: FSMState;
 }
 
 export function hexToRgb(hex: string): [number, number, number, number] {

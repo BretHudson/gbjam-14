@@ -1,11 +1,7 @@
-import {
-	BattleState,
-	Game,
-	hexToRgb,
-	MenuOption,
-	MenuState,
-	SceneState,
-} from '~/util';
+import * as _battle from '~/scenes/battle-scene';
+import * as _debug from '~/scenes/debug-scene';
+import * as _menu from '~/scenes/menu-scene';
+import { Game, hexToRgb, SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
 import type { Camera } from './camera';
 import { PaletteSwapPipeline } from './pipelines/palette-swap-pipeline';
@@ -13,11 +9,12 @@ import type { Pipeline } from './pipelines/pipeline';
 import { PosterizePipeline } from './pipelines/posterize-pipeline';
 import { SpritePipeline } from './pipelines/sprite-pipeline';
 import * as _text from './text-renderer';
-import * as _debug from '~/scenes/debug-scene';
 import { TextRenderer } from './text-renderer';
 
 let text = _text;
 let debug = _debug;
+let menu = _menu;
+let battle = _battle;
 if (import.meta.hot) {
 	import.meta.hot.accept('./text-renderer', (mod) => {
 		// @ts-expect-error -- ignore
@@ -26,6 +23,14 @@ if (import.meta.hot) {
 	import.meta.hot.accept('~/scenes/debug-scene', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) debug = mod;
+	});
+	import.meta.hot.accept('~/scenes/menu-scene', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) menu = mod;
+	});
+	import.meta.hot.accept('~/scenes/battle-scene', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) battle = mod;
 	});
 }
 
@@ -314,62 +319,6 @@ function updateUniforms(renderer: Renderer, camera: Camera): void {
 	renderer.device.queue.writeBuffer(renderer.uniformBuffer, 0, uniformData);
 }
 
-function renderMenu(textRenderer: TextRenderer, menuState: MenuState) {
-	const options = [
-		//
-		' @ENGAGE IN BATTLE',
-		'@@[DEBUG] SKIP INTRO',
-		'SWAP COLOR PALETTE',
-		'  @@RESET CONSOLE',
-	];
-
-	const spacing = 10;
-	const XX = 41;
-	let YY = Math.floor((GAME_H - spacing) / 2) - 5;
-
-	const title = 'B@A@T@T@L@E  II';
-	const TEXT_X = XX + 20;
-	const TEXT_Y = YY - 20;
-	for (let xx = -1; xx <= 1; ++xx) {
-		for (let yy = -1; yy <= 1; ++yy) {
-			text.renderText(textRenderer, title, TEXT_X + xx, TEXT_Y + yy, 0);
-		}
-	}
-	text.renderText(textRenderer, title, TEXT_X, TEXT_Y, 3);
-
-	for (let i = 0; i < MenuOption.NUM; ++i) {
-		const selected = i === menuState.option;
-		const prefix = selected ? ' ' : ' ';
-		text.renderText(
-			textRenderer,
-			prefix + options[i],
-			XX,
-			YY,
-			selected ? 2 : 3,
-		);
-		YY += spacing;
-	}
-
-	textRenderer.ctx.fillStyle = '#333';
-	textRenderer.ctx.fillRect(0, GAME_H - 13, GAME_W, 13);
-	textRenderer.ctx.fillStyle = '#000';
-	textRenderer.ctx.fillRect(0, GAME_H - 12, GAME_W, 11);
-
-	text.renderText(textRenderer, ' made by EFAN + BERT ', 0, GAME_H - 9, 2);
-	text.renderText(textRenderer, ' (c) 2026 ', GAME_W - 37, GAME_H - 9, 2);
-}
-
-function renderBattle(textRenderer: TextRenderer, battleState: BattleState) {
-	const XX = 0;
-	let YY = GAME_H - 21;
-
-	text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);
-	YY += 7;
-	text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
-	YY += 7;
-	text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
-}
-
 export function render(renderer: Renderer, game: Game): void {
 	let sceneState: SceneState;
 	switch (game.scene) {
@@ -405,13 +354,13 @@ export function render(renderer: Renderer, game: Game): void {
 
 	switch (game.scene) {
 		case 'DEBUG':
-			debug.renderDebug(textRenderer, game.debugState);
+			debug.render(textRenderer, game.debugState);
 			break;
 		case 'MENU':
-			renderMenu(textRenderer, game.menuState);
+			menu.render(textRenderer, game.menuState);
 			break;
 		case 'BATTLE':
-			renderBattle(textRenderer, game.battleState);
+			battle.render(textRenderer, game.battleState);
 			break;
 		default:
 			throw new Error(`"${game.scene}" is not a valid scene`);
@@ -460,6 +409,7 @@ export function render(renderer: Renderer, game: Game): void {
 			(renderPass) => {
 				renderPass.setBindGroup(0, uniformsBindGroup);
 
+				// console.log(sprites);
 				spritePipeline.render(renderPass, sprites);
 			},
 		);

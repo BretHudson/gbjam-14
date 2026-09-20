@@ -51,7 +51,7 @@ fn vs(
     @builtin(vertex_index) vertex_index: u32,
     @builtin(instance_index) instance_index: u32,
 ) -> VertexOutput {
-    let sprite = sprites[instance_index];
+    var sprite = sprites[instance_index];
 
     let quad_index = array<u32, 6>(0u, 2u, 1u, 2u, 3u, 1u)[vertex_index];
 
