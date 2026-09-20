@@ -52,6 +52,13 @@ fn vs(
     @builtin(instance_index) instance_index: u32,
 ) -> VertexOutput {
     var sprite = sprites[instance_index];
+    var dimensions = sprite.size;
+
+    // a hack for the background lol
+    if dimensions.x == 1f && dimensions.y == 1f {
+        dimensions.x *= 160.0f;
+        dimensions.y *= 144.0f;
+    }
 
     let quad_index = array<u32, 6>(0u, 2u, 1u, 2u, 3u, 1u)[vertex_index];
 
@@ -64,8 +71,8 @@ fn vs(
     let spriteUv = (sprite.offset + (uv * sprite.size)) / size;
 
     let uv2 = vec2f(
-        uv.x * sprite.size.x,
-        uv.y * sprite.size.y,
+        uv.x * dimensions.x,
+        uv.y * dimensions.y,
     ) + sprite.pos;
 
     var offset = BASES[0u] * uv2;

@@ -84,6 +84,7 @@ export function getSpriteGroups(
 	...groups: SpriteGroupName[]
 ): SpriteGroup[] {
 	return groups.map((groupName) => {
+		console.log(groupName);
 		const sprites = spriteData[groupName].sprites.map(spriteFromData);
 
 		return new SpriteGroup(...sprites);
