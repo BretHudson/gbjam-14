@@ -1,3 +1,4 @@
+import { mat3, vec2 } from 'wgpu-matrix';
 import type { ControllerInput } from '~/input';
 import { Camera } from '~/renderer/camera';
 import { getSpriteGroups } from '~/renderer/render-utils';
@@ -10,9 +11,9 @@ import {
 	chain,
 	fadeIn,
 	fadeIn2,
-	fadeInReverse,
 	parallel,
 	pause,
+	repeat,
 } from '~/util/generators';
 
 let text = _text;
@@ -165,10 +166,18 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 }
 
 export function reset(battleState: BattleState) {
+	const { player, enemy, camera } = battleState;
+
 	battleState.state = FSMState.NONE;
 	battleState.nextState = battleState.skipIntro
 		? FSMState.PLAYER_INPUT
 		: FSMState.INTRO;
+
+	player.health = 4;
+	enemy.health = 4;
+
+	camera.target[0] = 0;
+	camera.target[1] = 0;
 
 	setEnemyPose(battleState, 'PREPARE');
 
@@ -318,34 +327,20 @@ export function update(
 		text3,
 		..._hearts
 	] = sprites;
-	const heartsPlayer = spriteGroups[1];
-	const heartsEnemy = spriteGroups[2];
-	// sprites.forEach((sprite) => (sprite.y = 0));
-	// sprites.forEach((sprite) => (sprite.visible = true));
 
-	// text1.visible = false;
-	// text2.visible = false;
-	// text3.visible = false;
-
-	// 3-6 = hearts
-
-	// 7 is eye white
-	// 8 is eye
-	// 9 is body
-	// 10 is right arm
-
-	// sprites.forEach((sprite) => (sprite.visible = false));
-	// eyeWhites.visible = true;
-
-	const bounce = Math.floor(frameId / 60) % 2;
-	enemy.pose.sprites.forEach((sprite) => {
-		sprite.y = bounce ? -1 : 0;
-	});
+	if (state === FSMState.PLAYER_INPUT) {
+		const bounce = Math.floor(stateFrameId / 60) % 2;
+		enemy.pose.sprites.forEach((sprite) => {
+			sprite.y = bounce ? -1 : 0;
+		});
+	}
 
 	// hearts
 	// const hearts = sprites.slice(-4);
 	const animateHearts = battleState.state > FSMState.INTRO;
 	if (animateHearts) {
+		const heartsPlayer = spriteGroups[1];
+		const heartsEnemy = spriteGroups[2];
 		updateHearts(heartsPlayer, player.health, frameId);
 		updateHearts(heartsEnemy, enemy.health, frameId, false);
 	}
@@ -451,7 +446,17 @@ function* runSeePlay(battleState: BattleState) {
 
 	enemy.setPalette(3);
 	bg.setPalette(3, 3, 0);
-	yield* pause(15);
+	const vec = vec2.create(-5, 0);
+
+	yield* repeat(4, function* () {
+		battleState.camera.target[0] = vec[0];
+		battleState.camera.target[1] = vec[1];
+		yield* pause(15);
+		vec2.rotate(vec, vec2.zero(), -Math.PI / 2, vec);
+	});
+
+	battleState.camera.target[0] = 0;
+	battleState.camera.target[1] = 0;
 
 	// enemy.setPalette(0);
 	// bg.setPalette(0, 0, 3);
