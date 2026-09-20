@@ -56,9 +56,16 @@ export function debugText(game: Game) {
 
 	const key = Object.values(_battle.FSMState)[battleState.state];
 
-	return `\
-Scene: ${game.scene}
+	let str = `\
+[Scene: ${game.scene}]
+`;
+
+	if (game.scene === 'BATTLE') {
+		str += `\
 State: ${battleState.state} (${key})
 Enemy: ${battleState.enemy.state}
 `;
+	}
+
+	return str;
 }

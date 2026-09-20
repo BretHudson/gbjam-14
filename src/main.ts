@@ -197,7 +197,6 @@ async function setupApp(): Promise<void> {
 
 		consoleUI.updateConsoleUI(controllerInput);
 
-		if (input.keyPressed('Escape')) input.active = !input.active;
 		game.swapPalette ||= controllerInput.keyPressed('Select');
 
 		if (game.swapPalette) {

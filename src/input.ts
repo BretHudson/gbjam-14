@@ -50,7 +50,7 @@ export class ControllerInput {
 		Up: ['KeyW', 'ArrowUp'],
 		Down: ['KeyS', 'ArrowDown'],
 		Select: ['Space', 'Backspace'],
-		Start: ['Enter'],
+		Start: ['Enter', 'Escape'],
 		B: ['KeyZ', 'KeyK'],
 		A: ['KeyX', 'KeyL'],
 	};
@@ -127,6 +127,26 @@ export class ControllerInput {
 		return this.buttons[code]?.state === 1;
 	}
 }
+
+const VALID_KEYS = [
+	'KeyA',
+	'ArrowLeft',
+	'KeyD',
+	'ArrowRight',
+	'KeyW',
+	'ArrowUp',
+	'KeyS',
+	'ArrowDown',
+	'Space',
+	'Backspace',
+	'Enter',
+	'Escape',
+	'KeyZ',
+	'KeyK',
+	'KeyX',
+	'KeyL',
+	...Array.from({ length: 10 }, (_, i) => `Digit${i}`),
+];
 
 export class Input {
 	mouseX = -1;
@@ -340,7 +360,7 @@ export class Input {
 		const { target } = this;
 
 		const onKeyDown = (e: KeyboardEvent): void => {
-			if (!this.active) return;
+			if (!VALID_KEYS.includes(e.code)) return;
 
 			e.preventDefault();
 
@@ -364,7 +384,7 @@ export class Input {
 		};
 
 		const onKeyUp = (e: KeyboardEvent): void => {
-			if (!this.active) return;
+			if (!VALID_KEYS.includes(e.code)) return;
 
 			e.preventDefault();
 
