@@ -91,18 +91,17 @@ export interface BattleState extends SceneState {
 export function init(camera: Camera, spriteData: SpriteData): BattleState {
 	const spriteGroups = getSpriteGroups(
 		spriteData,
-		'Group 2',
-		'Hearts',
-		'Hearts',
-		'PREPARE SPRITE',
-		'Neutral/Idle WIP',
-		'Left ATK - WIP',
-		'Right ATK - WIP',
+		'Background',
+		'HEARTS',
+		'HEARTS',
+		'Prepare',
+		'IDLE',
+		'Right/Left ATK',
+		'Right/Left ATK',
 		'Down ATK',
 		'Up ATK',
 		'HURT',
-		'DIRECT ARROWS - PRESSED',
-		'DIRECT ARROWS',
+		'DIRECTIONAL ARROWS',
 	);
 
 	const sprites = spriteGroups.flatMap((group) => group.sprites);
@@ -110,15 +109,11 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 	const [_bg, hearts, hearts2, prepare, idle, left, right, down, up, hurt] =
 		spriteGroups;
 
-	console.warn('=======');
-	console.log(hearts);
-	console.log(hearts2);
-
 	hearts.sprites.forEach((sprite) => {
-		sprite.offsetX = GAME_W - sprite.offsetX - sprite.width;
+		sprite.setDefaultPalette(0, 2, 1, 3);
 	});
 	hearts2.sprites.forEach((sprite) => {
-		sprite.setDefaultPalette(0, 2, 1, 3);
+		sprite.offsetX = GAME_W - sprite.offsetX - sprite.width;
 	});
 
 	const initialState = FSMState.PLAYER_INPUT;
@@ -187,7 +182,7 @@ function updateHearts(
 	frameId: number,
 	animate = true,
 ) {
-	const sprites = hearts.sprites.toReversed();
+	const sprites = hearts.sprites.slice(1);
 	const healthCount = health;
 	const curI = Math.floor(frameId / 15) % (sprites.length + 2);
 	for (let i = 0; i < healthCount; ++i) {
@@ -312,7 +307,7 @@ export function update(
 	if (animateHearts) {
 		const heartsPlayer = spriteGroups[1];
 		const heartsEnemy = spriteGroups[2];
-		updateHearts(heartsPlayer, player.health, frameId);
+		updateHearts(heartsPlayer, player.health, frameId, false);
 		updateHearts(heartsEnemy, enemy.health, frameId, false);
 	}
 
@@ -416,18 +411,30 @@ function* runFight(battleState: BattleState) {
 	const enemy = battleState.enemy.pose;
 
 	enemy.setPalette(3);
-	bg.setPalette(3, 3, 0);
-	const vec = vec2.create(-5, 0);
+	bg.setPalette(3, 2, 1, 0);
+	const vec = vec2.create(-3, 0);
+
+	const startX = enemy.sprites[0].x;
+	const startY = enemy.sprites[0].y;
 
 	yield* repeat(4, function* () {
-		battleState.camera.target[0] = vec[0];
-		battleState.camera.target[1] = vec[1];
+		enemy.sprites.forEach((sprite) => {
+			sprite.x = vec[0];
+			sprite.y = vec[1];
+		});
+		// battleState.camera.target[0] = vec[0];
+		// battleState.camera.target[1] = vec[1];
 		yield* pause(15);
 		vec2.rotate(vec, vec2.zero(), -Math.PI / 2, vec);
 	});
 
-	battleState.camera.target[0] = 0;
-	battleState.camera.target[1] = 0;
+	enemy.sprites.forEach((sprite) => {
+		sprite.x = startX;
+		sprite.y = startY;
+	});
+
+	// battleState.camera.target[0] = 0;
+	// battleState.camera.target[1] = 0;
 
 	// enemy.setPalette(0);
 	// bg.setPalette(0, 0, 3);

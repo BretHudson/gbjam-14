@@ -237,20 +237,15 @@ export interface Layer {
 }
 
 export type SpriteGroupName =
-	| 'Group 2'
-	| 'PREPARE SPRITE'
+	| 'Background'
+	| 'IDLE'
+	| 'Prepare'
 	| 'HURT'
-	| 'Right ATK - WIP'
-	| 'Left ATK - WIP'
-	| 'Left ATK - WIP Copy'
-	| 'Down ATK'
+	| 'Right/Left ATK'
 	| 'Up ATK'
-	| 'Neutral/Idle WIP'
-	| 'UI ELEMENTS'
-	| 'Hearts'
-	| 'DIRECT ARROWS - PRESSED'
-	| 'DIRECT ARROWS'
-	| 'ACTION BOUNDARY';
+	| 'Down ATK'
+	| 'DIRECTIONAL ARROWS'
+	| 'HEARTS';
 
 export type SpriteData = Record<
 	SpriteGroupName,

@@ -5,7 +5,6 @@ import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
 import type { SpriteData } from '~/sprite';
 import type { Game, SceneState } from '~/util';
-import { GAME_H } from '~/util/constants';
 import { pause } from '~/util/generators';
 
 let text = _text;
@@ -24,7 +23,7 @@ export interface BootState extends SceneState {
 }
 
 export function init(camera: Camera, spriteData: SpriteData): BootState {
-	const spriteGroups = getSpriteGroups(spriteData, 'PREPARE SPRITE');
+	const spriteGroups = getSpriteGroups(spriteData, 'Prepare');
 
 	const splash = new Image(160, 144);
 	splash.onload = function () {

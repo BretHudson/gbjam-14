@@ -6,6 +6,7 @@ import {
 	SpriteGroup,
 	SpriteGroupName,
 } from '~/sprite';
+import { PADDING } from '~/util/constants';
 
 export const fetchShader = async (shaderSrc: string): Promise<string> => {
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- safety check
@@ -80,6 +81,8 @@ export function spriteFromData(data: Frame): Sprite {
 		sprite.offsetX = data.spriteSourceSize.x;
 		sprite.offsetY = data.spriteSourceSize.y;
 	}
+	sprite.offsetX -= PADDING;
+	sprite.offsetY -= PADDING;
 	return sprite;
 }
 

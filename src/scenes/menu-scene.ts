@@ -30,7 +30,7 @@ export interface MenuState extends SceneState {
 }
 
 export function init(camera: Camera, spriteData: SpriteData): MenuState {
-	const spriteGroups = getSpriteGroups(spriteData, 'Group 2');
+	const spriteGroups = getSpriteGroups(spriteData, 'Background');
 
 	const menuState: MenuState = {
 		camera,
@@ -39,11 +39,8 @@ export function init(camera: Camera, spriteData: SpriteData): MenuState {
 		option: MenuOption.PLAY,
 	};
 
-	const { sprites } = menuState;
-	sprites.pop();
-
-	[sprites[0], sprites[1]].forEach((sprite) => {
-		sprite.setPalette(0, 0, 3, 1);
+	menuState.sprites.forEach((sprite) => {
+		// sprite.setPalette(0, 0, 3, 1);
 	});
 
 	return menuState;
@@ -125,7 +122,7 @@ function renderTextWithOutline(
 	x: number,
 	y: number,
 	color: number,
-	outline = 0,
+	outline = 1,
 ) {
 	for (let xx = -1; xx <= 1; ++xx) {
 		for (let yy = -1; yy <= 1; ++yy) {
@@ -143,7 +140,6 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	const total = renderer.palettes.length;
 
 	const options = [
-		//
 		'ENGAGE IN BATTLE',
 		`SWAP PALETTE (@${index}@/@${total}@)`,
 		'PLAY THE ORIGINAL',
@@ -170,17 +166,19 @@ export function render(renderer: Renderer, menuState: MenuState) {
 			prefix + options[i],
 			0,
 			YY,
-			3,
-			selected ? 0 : 1,
+			selected ? 3 : 2,
+			selected ? 1 : 0,
 		);
 		YY += spacing;
 	}
 
-	textRenderer.ctx.fillStyle = '#333';
+	const colors = ['#000', '#333', '#aaa', '#fff'];
+
+	textRenderer.ctx.fillStyle = colors[3];
 	textRenderer.ctx.fillRect(0, GAME_H - 13, GAME_W, 13);
-	textRenderer.ctx.fillStyle = '#000';
+	textRenderer.ctx.fillStyle = colors[1];
 	textRenderer.ctx.fillRect(0, GAME_H - 12, GAME_W, 11);
 
-	text.renderText(textRenderer, ' made by EFAN + BERT ', 0, GAME_H - 9, 2);
-	text.renderTextRight(textRenderer, ' (c) 2026 ', GAME_W, GAME_H - 9, 2);
+	text.renderText(textRenderer, ' made by EFAN + BERT ', 0, GAME_H - 9, 3);
+	text.renderTextRight(textRenderer, ' (c) 2026 ', GAME_W, GAME_H - 9, 3);
 }

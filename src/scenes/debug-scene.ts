@@ -20,7 +20,7 @@ export interface DebugState extends SceneState {
 }
 
 export function init(camera: Camera, spriteData: SpriteData): DebugState {
-	const groups = getSpriteGroups(spriteData, 'Group 2', 'PREPARE SPRITE');
+	const groups = getSpriteGroups(spriteData, 'Background', 'Prepare');
 
 	const debugState: DebugState = {
 		camera,

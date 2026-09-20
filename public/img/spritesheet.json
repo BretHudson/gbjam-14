@@ -4,351 +4,199 @@
     "rotated": false,
     "trimmed": true,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "BG DETAIL": {
-    "frame": { "x": 0, "y": 1, "w": 160, "h": 144 },
+   "BG Noise": {
+    "frame": { "x": 0, "y": 1, "w": 180, "h": 164 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 160, "h": 144 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 180, "h": 164 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "SCREEN BORDER": {
-    "frame": { "x": 0, "y": 145, "w": 160, "h": 144 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 160, "h": 144 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "EYE BG": {
-    "frame": { "x": 0, "y": 289, "w": 48, "h": 46 },
+   "Idle": {
+    "frame": { "x": 0, "y": 165, "w": 88, "h": 90 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 57, "y": 54, "w": 48, "h": 46 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 46, "y": 37, "w": 88, "h": 90 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "EYE": {
-    "frame": { "x": 0, "y": 335, "w": 31, "h": 31 },
+   "Prepare": {
+    "frame": { "x": 0, "y": 255, "w": 111, "h": 92 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 64, "y": 59, "w": 31, "h": 31 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 30, "y": 36, "w": 111, "h": 92 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "BODY": {
-    "frame": { "x": 0, "y": 366, "w": 94, "h": 89 },
+   "Hurt": {
+    "frame": { "x": 0, "y": 347, "w": 105, "h": 91 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 20, "y": 26, "w": 94, "h": 89 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 36, "y": 33, "w": 105, "h": 91 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "ARM_LEFT": {
-    "frame": { "x": 0, "y": 455, "w": 29, "h": 46 },
+   "Hurt - Exclaimation": {
+    "frame": { "x": 0, "y": 438, "w": 101, "h": 42 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 102, "y": 72, "w": 29, "h": 46 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 36, "y": 30, "w": 101, "h": 42 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 25": {
-    "frame": { "x": 0, "y": 501, "w": 105, "h": 91 },
+   "Right/Left ATK": {
+    "frame": { "x": 0, "y": 480, "w": 92, "h": 86 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 26, "y": 23, "w": 105, "h": 91 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 40, "y": 37, "w": 92, "h": 86 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 26": {
-    "frame": { "x": 0, "y": 592, "w": 101, "h": 42 },
+   "Right/Left SWIPE": {
+    "frame": { "x": 0, "y": 566, "w": 101, "h": 39 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 26, "y": 20, "w": 101, "h": 42 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 46, "y": 94, "w": 101, "h": 39 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 28": {
-    "frame": { "x": 0, "y": 634, "w": 160, "h": 144 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 160, "h": 144 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 24": {
-    "frame": { "x": 0, "y": 778, "w": 40, "h": 17 },
+   "Up ATK": {
+    "frame": { "x": 0, "y": 605, "w": 86, "h": 105 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 36, "y": 44, "w": 40, "h": 17 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 55, "y": 29, "w": 86, "h": 105 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "EYE Copy": {
-    "frame": { "x": 0, "y": 795, "w": 18, "h": 18 },
+   "Up SWIPE": {
+    "frame": { "x": 0, "y": 710, "w": 45, "h": 97 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 67, "y": 65, "w": 18, "h": 18 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 38, "y": 29, "w": 45, "h": 97 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 21": {
-    "frame": { "x": 0, "y": 813, "w": 69, "h": 85 },
+   "Down ATK": {
+    "frame": { "x": 0, "y": 807, "w": 110, "h": 91 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 53, "y": 27, "w": 69, "h": 85 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 35, "y": 36, "w": 110, "h": 91 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 23": {
-    "frame": { "x": 0, "y": 898, "w": 91, "h": 49 },
+   "Down SWIPE": {
+    "frame": { "x": 0, "y": 898, "w": 80, "h": 72 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 30, "y": 64, "w": 91, "h": 49 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 50, "y": 55, "w": 80, "h": 72 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 27": {
-    "frame": { "x": 0, "y": 947, "w": 63, "h": 21 },
+   "Arrow PRESSED - Down": {
+    "frame": { "x": 0, "y": 970, "w": 18, "h": 11 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 35, "y": 96, "w": 63, "h": 21 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 81, "y": 140, "w": 18, "h": 11 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 29": {
-    "frame": { "x": 0, "y": 968, "w": 157, "h": 138 },
+   "Arrow - Down": {
+    "frame": { "x": 0, "y": 981, "w": 18, "h": 142 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 3, "y": 6, "w": 157, "h": 138 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 81, "y": 9, "w": 18, "h": 142 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 20": {
-    "frame": { "x": 0, "y": 1106, "w": 14, "h": 16 },
+   "Arrow PRESSED - Right": {
+    "frame": { "x": 0, "y": 1123, "w": 11, "h": 18 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 49, "y": 91, "w": 14, "h": 16 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 153, "y": 73, "w": 11, "h": 18 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 35": {
-    "frame": { "x": 0, "y": 1122, "w": 20, "h": 20 },
+   "Arrow - Right": {
+    "frame": { "x": 0, "y": 1141, "w": 11, "h": 21 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 104, "y": 61, "w": 20, "h": 20 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 153, "y": 70, "w": 11, "h": 21 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "EYE Copy": {
-    "frame": { "x": 0, "y": 1142, "w": 18, "h": 17 },
+   "Arrow PRESSED - Left": {
+    "frame": { "x": 0, "y": 1162, "w": 11, "h": 18 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 74, "y": 52, "w": 18, "h": 17 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 16, "y": 73, "w": 11, "h": 18 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 18": {
-    "frame": { "x": 0, "y": 1159, "w": 84, "h": 94 },
+   "Arrow - Left": {
+    "frame": { "x": 0, "y": 1180, "w": 11, "h": 21 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 40, "y": 31, "w": 84, "h": 94 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 16, "y": 70, "w": 11, "h": 21 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 34": {
-    "frame": { "x": 0, "y": 1253, "w": 29, "h": 62 },
+   "Arrow PRESSED - Up": {
+    "frame": { "x": 0, "y": 1201, "w": 18, "h": 12 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 38, "y": 20, "w": 29, "h": 62 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 81, "y": 15, "w": 18, "h": 12 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 19": {
-    "frame": { "x": 0, "y": 1315, "w": 92, "h": 59 },
+   "Arrow - UP": {
+    "frame": { "x": 0, "y": 1213, "w": 18, "h": 14 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 44, "y": 36, "w": 92, "h": 59 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 81, "y": 13, "w": 18, "h": 14 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 29": {
-    "frame": { "x": 0, "y": 1374, "w": 160, "h": 144 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 160, "h": 144 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 30": {
-    "frame": { "x": 0, "y": 1518, "w": 1, "h": 1 },
+   "Container BG": {
+    "frame": { "x": 0, "y": 1227, "w": 61, "h": 14 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 1, "h": 1 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 12, "y": 138, "w": 61, "h": 14 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 29": {
-    "frame": { "x": 0, "y": 1519, "w": 160, "h": 144 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 160, "h": 144 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "EYE Copy": {
-    "frame": { "x": 0, "y": 1663, "w": 26, "h": 25 },
+   "Heart A": {
+    "frame": { "x": 0, "y": 1241, "w": 14, "h": 12 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 67, "y": 68, "w": 26, "h": 25 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 13, "y": 139, "w": 14, "h": 12 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 31": {
-    "frame": { "x": 0, "y": 1688, "w": 110, "h": 91 },
+   "Heart B": {
+    "frame": { "x": 0, "y": 1253, "w": 14, "h": 12 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 25, "y": 26, "w": 110, "h": 91 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 28, "y": 139, "w": 14, "h": 12 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 30": {
-    "frame": { "x": 0, "y": 1779, "w": 80, "h": 72 },
+   "Heart C": {
+    "frame": { "x": 0, "y": 1265, "w": 14, "h": 12 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 40, "y": 45, "w": 80, "h": 72 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 43, "y": 139, "w": 14, "h": 12 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    },
-   "Layer 29": {
-    "frame": { "x": 0, "y": 1851, "w": 160, "h": 144 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 160, "h": 144 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 32": {
-    "frame": { "x": 0, "y": 1995, "w": 49, "h": 79 },
+   "Heart D": {
+    "frame": { "x": 0, "y": 1277, "w": 14, "h": 12 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 41, "y": 23, "w": 49, "h": 79 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 33": {
-    "frame": { "x": 0, "y": 2074, "w": 84, "h": 102 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 33, "y": 19, "w": 84, "h": 102 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 30": {
-    "frame": { "x": 0, "y": 2176, "w": 62, "h": 90 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 33, "y": 19, "w": 62, "h": 90 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 16": {
-    "frame": { "x": 0, "y": 2266, "w": 99, "h": 83 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 28, "y": 30, "w": 99, "h": 83 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 15": {
-    "frame": { "x": 0, "y": 2349, "w": 22, "h": 22 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 69, "y": 59, "w": 22, "h": 22 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 17": {
-    "frame": { "x": 0, "y": 2371, "w": 76, "h": 33 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 41, "y": 64, "w": 76, "h": 33 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Layer 7": {
-    "frame": { "x": 0, "y": 2404, "w": 34, "h": 34 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 7, "y": 108, "w": 34, "h": 34 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Button - B": {
-    "frame": { "x": 0, "y": 2438, "w": 30, "h": 30 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 121, "y": 110, "w": 30, "h": 30 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Heart 1": {
-    "frame": { "x": 0, "y": 2468, "w": 10, "h": 10 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 106, "y": 126, "w": 10, "h": 10 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Heart 1 Copy": {
-    "frame": { "x": 0, "y": 2478, "w": 10, "h": 10 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 118, "y": 126, "w": 10, "h": 10 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Heart 1 Copy Copy": {
-    "frame": { "x": 0, "y": 2488, "w": 10, "h": 10 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 130, "y": 126, "w": 10, "h": 10 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "Heart 1 Copy Copy Copy": {
-    "frame": { "x": 0, "y": 2498, "w": 10, "h": 10 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 142, "y": 126, "w": 10, "h": 10 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "DIRECT ARROWS - PRESSED": {
-    "frame": { "x": 0, "y": 2508, "w": 148, "h": 136 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 6, "y": 5, "w": 148, "h": 136 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "DIRECT ARROWS": {
-    "frame": { "x": 0, "y": 2644, "w": 148, "h": 138 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 6, "y": 3, "w": 148, "h": 138 },
-    "sourceSize": { "w": 160, "h": 144 },
-    "duration": 100
-   },
-   "ACTION BOUNDARY": {
-    "frame": { "x": 0, "y": 2782, "w": 128, "h": 112 },
-    "rotated": false,
-    "trimmed": true,
-    "spriteSourceSize": { "x": 16, "y": 16, "w": 128, "h": 112 },
-    "sourceSize": { "w": 160, "h": 144 },
+    "spriteSourceSize": { "x": 58, "y": 139, "w": 14, "h": 12 },
+    "sourceSize": { "w": 180, "h": 164 },
     "duration": 100
    }
  },
@@ -357,66 +205,45 @@
   "version": "1.3.16.1-x64",
   "image": "spritesheet.png",
   "format": "RGBA8888",
-  "size": { "w": 160, "h": 2894 },
+  "size": { "w": 180, "h": 1289 },
   "scale": "1",
   "frameTags": [
   ],
   "layers": [
-   { "name": "Group 2" },
-   { "name": "Background", "group": "Group 2", "opacity": 255, "blendMode": "normal" },
-   { "name": "BG DETAIL", "group": "Group 2", "opacity": 255, "blendMode": "normal" },
-   { "name": "SCREEN BORDER", "group": "Group 2", "opacity": 255, "blendMode": "normal" },
-   { "name": "PREPARE SPRITE" },
-   { "name": "EYE BG", "group": "PREPARE SPRITE", "opacity": 255, "blendMode": "normal" },
-   { "name": "EYE", "group": "PREPARE SPRITE", "opacity": 255, "blendMode": "normal" },
-   { "name": "BODY", "group": "PREPARE SPRITE", "opacity": 255, "blendMode": "normal" },
-   { "name": "ARM_LEFT", "group": "PREPARE SPRITE", "opacity": 255, "blendMode": "normal" },
+   { "name": "Background" },
+   { "name": "Background", "group": "Background", "opacity": 255, "blendMode": "normal" },
+   { "name": "BG Noise", "group": "Background", "opacity": 255, "blendMode": "normal" },
+   { "name": "IDLE" },
+   { "name": "Idle", "group": "IDLE", "opacity": 255, "blendMode": "normal" },
+   { "name": "Prepare" },
+   { "name": "Prepare", "group": "Prepare", "opacity": 255, "blendMode": "normal" },
    { "name": "HURT" },
-   { "name": "Layer 25", "group": "HURT", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 26", "group": "HURT", "opacity": 255, "blendMode": "normal" },
-   { "name": "Right ATK - WIP" },
-   { "name": "Layer 28", "group": "Right ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 24", "group": "Right ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "EYE Copy", "group": "Right ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 21", "group": "Right ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 23", "group": "Right ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 27", "group": "Right ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Left ATK - WIP" },
-   { "name": "Layer 29", "group": "Left ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 20", "group": "Left ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 35", "group": "Left ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "EYE Copy", "group": "Left ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 18", "group": "Left ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 34", "group": "Left ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 19", "group": "Left ATK - WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Left ATK - WIP Copy" },
-   { "name": "Layer 29", "group": "Left ATK - WIP Copy", "opacity": 217, "blendMode": "normal" },
-   { "name": "Layer 30", "group": "Left ATK - WIP Copy", "opacity": 255, "blendMode": "normal" },
-   { "name": "Down ATK" },
-   { "name": "Layer 29", "group": "Down ATK", "opacity": 217, "blendMode": "normal" },
-   { "name": "EYE Copy", "group": "Down ATK", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 31", "group": "Down ATK", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 30", "group": "Down ATK", "opacity": 255, "blendMode": "normal" },
+   { "name": "Hurt", "group": "HURT", "opacity": 255, "blendMode": "normal" },
+   { "name": "Hurt - Exclaimation", "group": "HURT", "opacity": 255, "blendMode": "normal" },
+   { "name": "Right/Left ATK" },
+   { "name": "Right/Left ATK", "group": "Right/Left ATK", "opacity": 255, "blendMode": "normal" },
+   { "name": "Right/Left SWIPE", "group": "Right/Left ATK", "opacity": 255, "blendMode": "normal" },
    { "name": "Up ATK" },
-   { "name": "Layer 29", "group": "Up ATK", "opacity": 217, "blendMode": "normal" },
-   { "name": "Layer 32", "group": "Up ATK", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 33", "group": "Up ATK", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 30", "group": "Up ATK", "opacity": 255, "blendMode": "normal" },
-   { "name": "Neutral/Idle WIP" },
-   { "name": "Layer 16", "group": "Neutral/Idle WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 15", "group": "Neutral/Idle WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "Layer 17", "group": "Neutral/Idle WIP", "opacity": 255, "blendMode": "normal" },
-   { "name": "UI ELEMENTS" },
-   { "name": "Layer 7", "group": "UI ELEMENTS", "opacity": 255, "blendMode": "normal" },
-   { "name": "Button - B", "group": "UI ELEMENTS", "opacity": 255, "blendMode": "normal" },
-   { "name": "Hearts", "group": "UI ELEMENTS" },
-   { "name": "Heart 1", "group": "Hearts", "opacity": 255, "blendMode": "normal" },
-   { "name": "Heart 1 Copy", "group": "Hearts", "opacity": 255, "blendMode": "normal" },
-   { "name": "Heart 1 Copy Copy", "group": "Hearts", "opacity": 255, "blendMode": "normal" },
-   { "name": "Heart 1 Copy Copy Copy", "group": "Hearts", "opacity": 255, "blendMode": "normal" },
-   { "name": "DIRECT ARROWS - PRESSED", "opacity": 255, "blendMode": "normal" },
-   { "name": "DIRECT ARROWS", "opacity": 255, "blendMode": "normal" },
-   { "name": "ACTION BOUNDARY", "opacity": 36, "blendMode": "normal" }
+   { "name": "Up ATK", "group": "Up ATK", "opacity": 255, "blendMode": "normal" },
+   { "name": "Up SWIPE", "group": "Up ATK", "opacity": 255, "blendMode": "normal" },
+   { "name": "Down ATK" },
+   { "name": "Down ATK", "group": "Down ATK", "opacity": 255, "blendMode": "normal" },
+   { "name": "Down SWIPE", "group": "Down ATK", "opacity": 255, "blendMode": "normal" },
+   { "name": "DIRECTIONAL ARROWS" },
+   { "name": "Arrow PRESSED - Down", "group": "DIRECTIONAL ARROWS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Arrow - Down", "group": "DIRECTIONAL ARROWS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Arrow PRESSED - Right", "group": "DIRECTIONAL ARROWS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Arrow - Right", "group": "DIRECTIONAL ARROWS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Arrow PRESSED - Left", "group": "DIRECTIONAL ARROWS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Arrow - Left", "group": "DIRECTIONAL ARROWS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Arrow PRESSED - Up", "group": "DIRECTIONAL ARROWS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Arrow - UP", "group": "DIRECTIONAL ARROWS", "opacity": 255, "blendMode": "normal" },
+   { "name": "HEARTS" },
+   { "name": "Container BG", "group": "HEARTS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Heart A", "group": "HEARTS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Heart B", "group": "HEARTS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Heart C", "group": "HEARTS", "opacity": 255, "blendMode": "normal" },
+   { "name": "Heart D", "group": "HEARTS", "opacity": 255, "blendMode": "normal" }
   ],
   "slices": [
   ]
