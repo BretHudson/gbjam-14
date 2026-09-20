@@ -59,6 +59,6 @@ export function debugText(game: Game) {
 	return `\
 Scene: ${game.scene}
 State: ${battleState.state} (${key})
-Enemy: ${battleState.enemyState}
+Enemy: ${battleState.enemy.state}
 `;
 }
