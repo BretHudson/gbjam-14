@@ -144,6 +144,10 @@ export class Renderer {
 
 		const passesWrapper = document.getElementById('render-passes');
 		if (!passesWrapper) throw new Error('#render-passes missing');
+		passesWrapper.style.display = 'none';
+		if (import.meta.hot) {
+			passesWrapper.style.display = 'block';
+		}
 		for (let i = 0; i < 3; ++i) {
 			const wrapper = document.createElement('div');
 			wrapper.classList.add('pipeline-preview');

@@ -422,8 +422,6 @@ function* runFight(battleState: BattleState) {
 			sprite.x = vec[0];
 			sprite.y = vec[1];
 		});
-		// battleState.camera.target[0] = vec[0];
-		// battleState.camera.target[1] = vec[1];
 		yield* pause(15);
 		vec2.rotate(vec, vec2.zero(), -Math.PI / 2, vec);
 	});
@@ -432,17 +430,6 @@ function* runFight(battleState: BattleState) {
 		sprite.x = startX;
 		sprite.y = startY;
 	});
-
-	// battleState.camera.target[0] = 0;
-	// battleState.camera.target[1] = 0;
-
-	// enemy.setPalette(0);
-	// bg.setPalette(0, 0, 3);
-	// yield* pause(15);
-
-	// enemy.setPalette(3);
-	// bg.setPalette(3, 3, 0);
-	// yield* pause(15);
 
 	enemy.resetPalette();
 	bg.resetPalette();
