@@ -39,7 +39,7 @@ type GameScene = 'BOOT' | 'MENU' | 'BATTLE' | 'DEBUG' | null;
 export interface Game {
 	scene: GameScene;
 	nextScene: GameScene;
-	swapPalette: boolean;
+	swapPalette: number;
 	bootState: BootState;
 	menuState: MenuState;
 	battleState: BattleState;

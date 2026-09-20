@@ -155,7 +155,7 @@ async function setupApp(): Promise<void> {
 		// nextScene: 'DEBUG',
 		// nextScene: 'MENU',
 		// nextScene: 'BATTLE',
-		swapPalette: false,
+		swapPalette: 0,
 		bootState: boot.init(cam.create(), groups),
 		menuState: menu.init(cam.create(), groups),
 		battleState: battle.init(cam.create(), groups),
@@ -212,12 +212,12 @@ async function setupApp(): Promise<void> {
 
 		consoleUI.updateConsoleUI(controllerInput);
 
-		game.swapPalette ||= controllerInput.keyPressed('Select');
+		game.swapPalette ||= controllerInput.keyPressed('Select') ? 1 : 0;
 
-		if (game.swapPalette) {
-			render.nextPalette();
+		if (game.swapPalette !== 0) {
+			render.nextPalette(renderer, game.swapPalette);
 			render.updateTime(dt);
-			game.swapPalette = false;
+			game.swapPalette = 0;
 		}
 	}
 

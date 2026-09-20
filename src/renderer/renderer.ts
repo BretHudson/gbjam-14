@@ -47,18 +47,16 @@ type PipelineConstructor<T extends Pipeline> = new (
 
 const instanceFloats = 16 + 16 + 4 + 4 + 4;
 
-const palettes: Palette[][] = [];
 function createPalette(...colors: string[]) {
-	const palette = colors.map((c) => hexToRgb(c));
-	palettes.push(palette);
-	return palette;
+	return colors.map(hexToRgb);
 }
 
-createPalette('#071821', '#306850', '#86c06c', '#e0f8cf');
-createPalette('#393829', '#7b7162', '#b4a56a', '#e6d69c');
-createPalette('#003049', '#d62828', '#f77f00', '#fcbf49');
-createPalette('#663333', '#0000aa', '#cc0000', '#00dd00');
-createPalette('#233933', '#A3574E', '#E6B95A', '#D5D8D1');
+const _palettes = [
+	createPalette('#071821', '#306850', '#86c06c', '#e0f8cf'),
+	createPalette('#393829', '#7b7162', '#b4a56a', '#e6d69c'),
+	createPalette('#003049', '#d62828', '#f77f00', '#fcbf49'),
+	createPalette('#233933', '#A3574E', '#E6B95A', '#D5D8D1'),
+];
 
 export interface TexturePointer {
 	texture: GPUTexture;
@@ -74,6 +72,9 @@ export class Renderer {
 	uniformData = new Float32Array(instanceFloats);
 
 	textRenderer: TextRenderer;
+
+	paletteIndex: number = 0;
+	palettes: Palette[][] = _palettes;
 
 	constructor(
 		canvas: HTMLCanvasElement,
@@ -311,9 +312,8 @@ export class Renderer {
 	}
 }
 
-let palette = 0;
 function updateUniforms(renderer: Renderer, camera: Camera): void {
-	const { uniformData } = renderer;
+	const { uniformData, palettes, paletteIndex: palette } = renderer;
 	uniformData.set(camera.viewProjMatrix);
 	uniformData.set(palettes[palette].flat(), 16);
 	uniformData.set(
@@ -365,8 +365,9 @@ export function render(renderer: Renderer, game: Game): void {
 	switch (game.scene) {
 		case 'BOOT':
 			boot.render(textRenderer, game.bootState);
+			break;
 		case 'MENU':
-			menu.render(textRenderer, game.menuState);
+			menu.render(renderer, game.menuState);
 			break;
 		case 'BATTLE':
 			battle.render(textRenderer, game.battleState);
@@ -524,6 +525,8 @@ export function updateTime(dt: number): void {
 	elapsed += dt;
 }
 
-export function nextPalette() {
-	palette = ++palette % palettes.length;
+export function nextPalette(renderer: Renderer, amount: number) {
+	const { paletteIndex, palettes } = renderer;
+	const count = palettes.length;
+	renderer.paletteIndex = (paletteIndex + amount + count) % count;
 }

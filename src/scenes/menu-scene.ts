@@ -1,6 +1,7 @@
 import type { ControllerInput } from '~/input';
 import { Camera } from '~/renderer/camera';
 import { getSpriteGroups } from '~/renderer/render-utils';
+import { Renderer } from '~/renderer/renderer';
 import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
 import { Sprite, type SpriteData } from '~/sprite';
@@ -56,7 +57,8 @@ export function reset(menuState: MenuState) {
 	menuState.option = 0;
 }
 
-let timer = 0;
+let timerX = 0;
+let timerY = 0;
 let timeout = 12;
 
 export function update(
@@ -66,20 +68,37 @@ export function update(
 ): void {
 	const { menuState, battleState } = game;
 
-	timer = Math.max(0, --timer);
+	timerX = Math.max(0, --timerX);
+	timerY = Math.max(0, --timerY);
 	function switchOption(delta: number) {
-		if (timer > 0) return;
+		if (timerY > 0) return;
 
 		menuState.option += delta;
-		timer = timeout;
+		timerY = timeout;
 	}
 
-	let delta = 0;
-	if (controller.keyHeld('Up')) --delta;
-	if (controller.keyHeld('Down')) ++delta;
-	switchOption(delta);
+	let deltaX = 0;
+	if (controller.keyHeld('Left')) --deltaX;
+	if (controller.keyHeld('Right')) ++deltaX;
 
-	if (!controller.keyHeld('Up') && !controller.keyHeld('Down')) timer = 0;
+	let deltaY = 0;
+	if (controller.keyHeld('Up')) --deltaY;
+	if (controller.keyHeld('Down')) ++deltaY;
+	switchOption(deltaY);
+
+	if (!controller.keyHeld('Left') && !controller.keyHeld('Right')) timerX = 0;
+	if (!controller.keyHeld('Up') && !controller.keyHeld('Down')) timerY = 0;
+
+	switch (menuState.option) {
+		case MenuOption.PALETTE:
+			if (deltaX !== 0 && timerX === 0) {
+				timerX = timeout;
+				game.swapPalette = deltaX;
+			}
+			break;
+		default:
+			break;
+	}
 
 	if (controller.keyPressed('Start') || controller.keyPressed('A')) {
 		switch (menuState.option) {
@@ -91,7 +110,7 @@ export function update(
 				battleState.skipIntro = true;
 				break;
 			case MenuOption.PALETTE:
-				game.swapPalette = true;
+				game.swapPalette = 1;
 				break;
 			case MenuOption.RESET:
 				game.nextScene = 'BOOT';
@@ -102,12 +121,17 @@ export function update(
 	menuState.option = (menuState.option + MenuOption.NUM) % MenuOption.NUM;
 }
 
-export function render(textRenderer: TextRenderer, menuState: MenuState) {
+export function render(renderer: Renderer, menuState: MenuState) {
+	const { textRenderer } = renderer;
+
+	const index = renderer.paletteIndex + 1;
+	const total = renderer.palettes.length;
+
 	const options = [
 		//
 		' @ENGAGE IN BATTLE',
 		'@@[DEBUG] SKIP INTRO',
-		'SWAP COLOR PALETTE',
+		`SWAP PALETTE (@${index}@/@${total}@)`,
 		'  @@RESET CONSOLE',
 	];
 
