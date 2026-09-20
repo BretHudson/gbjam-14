@@ -6,7 +6,7 @@ import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
 import { Sprite, SpriteData, SpriteGroup } from '~/sprite';
 import type { Game, SceneState } from '~/util';
-import { GAME_H, GAME_W } from '~/util/constants';
+import { GAME_H, GAME_W, PADDING } from '~/util/constants';
 import {
 	chain,
 	fadeIn,
@@ -59,11 +59,13 @@ type EnemyState = 'IDLE' | 'PREPARE' | 'ATTACK' | 'HURT';
 
 interface Player {
 	health: number;
+	attack: Direction;
 }
 
 interface Enemy {
 	health: number;
 	state: EnemyState;
+	attack: Direction;
 	pose: SpriteGroup;
 	poses: {
 		prepare: SpriteGroup;
@@ -74,6 +76,7 @@ interface Enemy {
 		up: SpriteGroup;
 		hurt: SpriteGroup;
 	};
+	bounce: number;
 }
 
 export interface BattleState extends SceneState {
@@ -130,11 +133,13 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 
 		player: {
 			health: 4,
+			attack: Direction.None,
 		},
 
 		enemy: {
 			health: 4,
 			state: 'IDLE',
+			attack: Direction.None,
 			pose: prepare,
 			poses: {
 				prepare,
@@ -145,11 +150,12 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 				up,
 				hurt,
 			},
+			bounce: 0,
 		},
 	};
 
 	spriteGroups
-		.slice(BG_AND_ENEMY, -2)
+		.slice(BG_AND_ENEMY, -1)
 		.forEach((group) => (group.visible = false));
 
 	setEnemyPose(battleState, 'PREPARE');
@@ -284,6 +290,8 @@ export function update(
 					break;
 			}
 
+			// update arrows
+
 			const canPlay = direction !== Direction.None;
 			if (
 				canPlay &&
@@ -292,14 +300,37 @@ export function update(
 				enemy.health -= 1;
 				battleState.nextState = FSMState.FIGHT;
 			}
+
+			enemy.attack = Direction.None as Direction;
+
+			const offset = 2;
+
+			// enemy pos
+			enemy.pose.sprites[0].x = 0;
+			enemy.pose.sprites[0].y = 0;
+			switch (enemy.attack) {
+				case Direction.None:
+					break;
+				case Direction.Left:
+					enemy.pose.sprites[0].x = -offset;
+					break;
+				case Direction.Right:
+					enemy.pose.sprites[0].x = offset;
+					break;
+				case Direction.Up:
+					enemy.pose.sprites[0].y = -offset;
+					break;
+				case Direction.Down:
+					enemy.pose.sprites[0].y = offset;
+					break;
+			}
 		}
 	}
 
 	if (state === FSMState.PLAYER_INPUT) {
-		const bounce = Math.floor(stateFrameId / 60) % 2;
-		enemy.pose.sprites.forEach((sprite) => {
-			sprite.y = bounce ? -1 : 0;
-		});
+		enemy.bounce = Math.floor(stateFrameId / 60) % 2;
+	} else {
+		enemy.bounce = 0;
 	}
 
 	// hearts
@@ -320,6 +351,11 @@ export function update(
 export function render(textRenderer: TextRenderer, battleState: BattleState) {
 	let XX = 0;
 	let YY = GAME_H - 21;
+
+	const { enemy } = battleState;
+	enemy.pose.sprites.forEach((sprite) => {
+		sprite.y -= enemy.bounce;
+	});
 
 	switch (battleState.state) {
 		case FSMState.FIGHT:
@@ -438,4 +474,15 @@ function* runFight(battleState: BattleState) {
 	const { health } = battleState.enemy;
 	const next = health > 0 ? FSMState.PLAYER_INPUT : FSMState.GAME_WON;
 	battleState.nextState = next;
+}
+
+export function postRender(
+	textRenderer: TextRenderer,
+	battleState: BattleState,
+) {
+	const { enemy } = battleState;
+
+	enemy.pose.sprites.forEach((sprite) => {
+		sprite.y += enemy.bounce;
+	});
 }

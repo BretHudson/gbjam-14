@@ -480,6 +480,20 @@ export function render(renderer: Renderer, game: Game): void {
 	copyPassTexture(commandEncoder, passPaletteTexture, canvasGameTexture);
 
 	device.queue.submit([commandEncoder.finish()]);
+
+	switch (game.scene) {
+		case 'BOOT':
+			break;
+		case 'MENU':
+			break;
+		case 'BATTLE':
+			battle.postRender(textRenderer, game.battleState);
+			break;
+		case 'DEBUG':
+			break;
+		default:
+			throw new Error(`"${game.scene}" is not a valid scene`);
+	}
 }
 
 function doRenderPass(
