@@ -35,10 +35,9 @@ export const GROUP = {
 export enum FSMState {
 	NONE,
 
-	NULL,
 	INTRO,
 	PLAYER_INPUT,
-	SEE_PLAY,
+	FIGHT,
 
 	GAME_WON,
 	GAME_OVER,
@@ -216,6 +215,8 @@ export function update(
 	const { rawInput: input } = controller;
 
 	for (let i = 0; i < FSMState.NUM; ++i) {
+		if (i === FSMState.NONE) continue;
+		if (i === FSMState.NUM) continue;
 		if (input.keyPressed(`Digit${i}`)) battleState.nextState = i;
 	}
 
@@ -223,38 +224,30 @@ export function update(
 		battleState.nextState = FSMState.PAUSED;
 	}
 
-	// if (controller.keyPressed('Space'
-
 	if (battleState.state !== battleState.nextState) {
 		battleState.state = battleState.nextState;
 	}
 
-	const { camera, sprites, spriteGroups, lastState, state, player, enemy } =
-		battleState;
-
-	// sprites.forEach((sprite) => sprite.setShift(0));
+	const { spriteGroups, lastState, state, player, enemy } = battleState;
 
 	if (lastState !== state) {
+		while (game.curGenerator) {
+			const res = game.curGenerator.next();
+			if (res.done) game.curGenerator = null;
+		}
+
 		stateStarted = frameId;
 		switch (state) {
 			case FSMState.INTRO:
 				game.curGenerator = runIntro(battleState);
 				break;
 
-			case FSMState.NULL:
-				//
-				break;
-
-			// TODO(bret): WIND_UP
-
 			case FSMState.PLAYER_INPUT:
-				// battleState.nextState = 2;
-
 				setEnemyPose(battleState, 'PREPARE');
 				break;
 
-			case FSMState.SEE_PLAY:
-				game.curGenerator = runSeePlay(battleState);
+			case FSMState.FIGHT:
+				game.curGenerator = runFight(battleState);
 				break;
 
 			case FSMState.GAME_WON:
@@ -267,7 +260,7 @@ export function update(
 
 			case FSMState.NONE:
 			case FSMState.NUM:
-				throw new Error('???');
+				throw new Error('???' + state);
 
 			case FSMState.PAUSED:
 				game.nextScene = 'MENU';
@@ -277,10 +270,7 @@ export function update(
 
 	if (game.curGenerator) {
 		const res = game.curGenerator.next();
-		if (res.done) {
-			console.log('all done');
-			game.curGenerator = null;
-		}
+		if (res.done) game.curGenerator = null;
 	}
 
 	const stateFrameId = frameId - stateStarted;
@@ -309,26 +299,10 @@ export function update(
 				(controller.keyPressed('B') || controller.keyPressed('A'))
 			) {
 				enemy.health -= 1;
-				battleState.nextState = FSMState.SEE_PLAY;
+				battleState.nextState = FSMState.FIGHT;
 			}
 		}
 	}
-
-	const [
-		bg,
-		swirl,
-		letterbox,
-		moreLetterbox,
-		eyeWhites,
-		eye,
-		eye2,
-		body,
-		arm,
-		text1,
-		text2,
-		text3,
-		..._hearts
-	] = sprites;
 
 	if (state === FSMState.PLAYER_INPUT) {
 		const bounce = Math.floor(stateFrameId / 60) % 2;
@@ -338,7 +312,6 @@ export function update(
 	}
 
 	// hearts
-	// const hearts = sprites.slice(-4);
 	const animateHearts = battleState.state > FSMState.INTRO;
 	if (animateHearts) {
 		const heartsPlayer = spriteGroups[1];
@@ -358,12 +331,12 @@ export function render(textRenderer: TextRenderer, battleState: BattleState) {
 	let YY = GAME_H - 21;
 
 	switch (battleState.state) {
-		case FSMState.SEE_PLAY:
-			text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);
-			YY += 7;
-			text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
-			YY += 7;
-			text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
+		case FSMState.FIGHT:
+			// text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);
+			// YY += 7;
+			// text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
+			// YY += 7;
+			// text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
 			break;
 		case FSMState.GAME_WON:
 			YY = GAME_H / 2 - 5;
@@ -436,7 +409,7 @@ function setEnemyPose(battleState: BattleState, enemyState: EnemyState) {
 	enemy.pose.visible = true;
 }
 
-function* runSeePlay(battleState: BattleState) {
+function* runFight(battleState: BattleState) {
 	const _bg = battleState.spriteGroups[0];
 	const bg = new SpriteGroup(..._bg.sprites.slice(0, 2));
 
