@@ -43,8 +43,7 @@ export function parseAsepriteData(spritesheet: any): SpriteData {
 				items: [],
 				sprites: [],
 			});
-		} else if ('group' in layer) {
-			const parent = _groups.find((group) => group.name === layer.group);
+		} else {
 			const sprite =
 				spritesheet.frames[
 					layer.name as keyof typeof spritesheet.frames
@@ -52,7 +51,12 @@ export function parseAsepriteData(spritesheet: any): SpriteData {
 
 			if (sprite === undefined)
 				console.warn(`Sprite not found for layer: ${layer.name}`);
-			if (parent) {
+
+			if ('group' in layer) {
+				const parent = _groups.find(
+					(group) => group.name === layer.group,
+				);
+				if (!parent) throw new Error('No parent group found');
 				parent.items.push(layer);
 				parent.sprites.push(sprite);
 			} else {

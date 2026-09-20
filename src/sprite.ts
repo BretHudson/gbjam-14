@@ -247,10 +247,10 @@ export type SpriteGroupName =
 	| 'Up ATK'
 	| 'Neutral/Idle WIP'
 	| 'UI ELEMENTS'
-	| 'Hearts';
-// | 'DIRECT ARROWS - PRESSED'
-// | 'DIRECT_ARROWS'
-// | 'ACTION BOUNDARY';
+	| 'Hearts'
+	| 'DIRECT ARROWS - PRESSED'
+	| 'DIRECT ARROWS'
+	| 'ACTION BOUNDARY';
 
 export type SpriteData = Record<
 	SpriteGroupName,

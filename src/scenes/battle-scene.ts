@@ -102,6 +102,8 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 		'Down ATK',
 		'Up ATK',
 		'HURT',
+		'DIRECT ARROWS - PRESSED',
+		'DIRECT ARROWS',
 	);
 
 	const sprites = spriteGroups.flatMap((group) => group.sprites);
@@ -152,9 +154,9 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 		},
 	};
 
-	battleState.spriteGroups
-		.slice(BG_AND_ENEMY)
-		.forEach((sprite) => (sprite.visible = false));
+	spriteGroups
+		.slice(BG_AND_ENEMY, -2)
+		.forEach((group) => (group.visible = false));
 
 	setEnemyPose(battleState, 'PREPARE');
 
