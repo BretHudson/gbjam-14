@@ -1,14 +1,13 @@
-import { ControllerInput } from './input';
-import * as _cam from './renderer/camera';
-import { Sprite, SpriteGroup } from './sprite';
-import { BattleState, FSMState, Game, GROUP, MenuOption } from './util';
-import { GAME_H, GAME_W, HUD_H } from './util/constants';
+import { ControllerInput } from '~/input';
+import * as _debug from '~/scenes/debug-scene';
+import { Sprite, SpriteGroup } from '~/sprite';
+import { BattleState, FSMState, Game, GROUP, MenuOption } from '~/util';
 
-let cam = _cam;
+let debug = _debug;
 if (import.meta.hot) {
-	import.meta.hot.accept('./renderer/camera', (mod) => {
+	import.meta.hot.accept('./scenes/debug-scene', (mod) => {
 		// @ts-expect-error -- ignore
-		if (mod) cam = mod;
+		if (mod) debug = mod;
 	});
 }
 
@@ -239,7 +238,7 @@ function updateBattle(
 		battleState.state = battleState.nextState;
 	}
 
-	const { player, camera, sprites, lastState, state } = battleState;
+	const { camera, sprites, lastState, state } = battleState;
 
 	if (lastState !== state) {
 		stateStarted = frameId;
@@ -351,13 +350,13 @@ function updateBattle(
 
 	// right arm
 
-	player.health = 4;
+	battleState.playerHealth = 4;
 
 	// hearts
 	// const hearts = sprites.slice(-4);
 	const animateHearts = false;
 	if (animateHearts) {
-		const healthCount = player.health;
+		const healthCount = battleState.playerHealth;
 		const curI = Math.floor(frameId / 15) % (hearts.length + 2);
 		for (let i = 0; i < healthCount; ++i) {
 			hearts[i].y = i === curI ? -1 : 0;
@@ -369,12 +368,6 @@ function updateBattle(
 			hearts[i].setPalette(1);
 		}
 	}
-
-	// camera
-	let [xPos, yPos] = player.pos;
-	xPos -= GAME_W / 2;
-	yPos -= GAME_H - HUD_H - 36;
-	cam.follow(camera, [xPos, yPos], dt, 6);
 
 	// frame timer
 	++frameId;
@@ -388,6 +381,9 @@ export function update(
 	controller: ControllerInput,
 ): void {
 	switch (game.scene) {
+		case 'DEBUG':
+			debug.update(dt, game, controller);
+			break;
 		case 'MENU':
 			updateMenu(dt, game, controller);
 			break;
@@ -405,6 +401,7 @@ export function debugText(game: Game) {
 	const key = Object.values(FSMState)[gameState.state];
 
 	return `\
+Scene: ${game.scene}
 State: ${gameState.state} (${key})
 `;
 }

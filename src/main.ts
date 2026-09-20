@@ -1,4 +1,3 @@
-import { vec2 } from 'wgpu-matrix';
 import './css/styles.css';
 
 import * as _consoleUI from './console-ui';
@@ -7,27 +6,27 @@ import { ControllerInput, Input } from './input';
 import * as _cam from './renderer/camera';
 import * as _render from './renderer/renderer';
 import { Renderer } from './renderer/renderer';
-import { Sprite } from './sprite';
-import {
-	BattleState,
-	FSMState,
-	Game,
-	MenuOption,
-	MenuState,
-	Player,
-} from './util';
+import type { DebugState } from './scenes/debug-scene';
+import * as _debug from './scenes/debug-scene';
+import { Sprite, SpriteData } from './sprite';
+import { BattleState, FSMState, Game, MenuOption, MenuState } from './util';
 import { GAME_H, GAME_W } from './util/constants';
 
 import spritesheet from '../public/img/spritesheet.json';
+import { parseAsepriteData, spriteFromData } from './renderer/render-utils';
 
 let game: Game;
+let debugState: DebugState;
 let menuState: MenuState;
 let battleState: BattleState;
 
 let ggame = _game;
+let debug = _debug;
 let cam = _cam;
 let render = _render;
 let consoleUI = _consoleUI;
+const sprites: Sprite[] = [];
+let groups: SpriteData;
 if (import.meta.hot) {
 	import.meta.hot.accept('./renderer/camera', (mod) => {
 		// @ts-expect-error -- ignore
@@ -49,6 +48,13 @@ if (import.meta.hot) {
 		if (mod) consoleUI = mod;
 		// consoleUI.initConsoleUI();
 	});
+	import.meta.hot.accept('./scenes/debug-scene', (mod) => {
+		if (mod) {
+			// @ts-expect-error -- ignore
+			debug = mod;
+			debug.init(debugState, sprites, groups);
+		}
+	});
 }
 
 async function setupApp(): Promise<void> {
@@ -69,31 +75,16 @@ async function setupApp(): Promise<void> {
 
 	const camera = cam.create();
 
-	// Y = 46
-	const player: Player = {
-		pos: vec2.create(32, 32),
-		sprite: new Sprite(GAME_W + 16, 16, 16, 16),
-		health: 4,
-	};
-
-	const sprites: Sprite[] = [];
+	groups = parseAsepriteData(spritesheet);
+	console.table(Object.keys(groups));
 
 	let _heart: Sprite = new Sprite(0, 0, 0, 0);
 	const identifiers = Object.entries(spritesheet.frames).map(
 		([name, data]) => {
-			const { frame } = data;
-			data;
-			const sprite = new Sprite(frame.x, frame.y, frame.w, frame.h);
-			if (data.trimmed) {
-				sprite.offsetX = data.spriteSourceSize.x;
-				sprite.offsetY = data.spriteSourceSize.y;
-			}
-
+			const sprite = spriteFromData(data);
 			sprites.push(sprite);
-			if (name === 'Heart 1') {
-				console.log(data);
-				_heart = sprite;
-			}
+			if (name === 'Heart 1') _heart = sprite;
+
 			return [name, sprite];
 		},
 	);
@@ -134,8 +125,6 @@ async function setupApp(): Promise<void> {
 	textSprite.textureId = 1;
 	sprites.push(textSprite);
 
-	console.table(identifiers);
-
 	const spriteGroups = new Map();
 
 	const initialState = FSMState.PLAYER_INPUT;
@@ -145,15 +134,23 @@ async function setupApp(): Promise<void> {
 	menuSprites.push(sprites[1]);
 	menuSprites.push(textSprite);
 
+	debugState = {
+		camera,
+		spriteGroups: [],
+		sprites: [],
+	};
+
 	menuState = {
 		camera,
+		spriteGroups: [],
 		sprites: menuSprites,
 		option: MenuOption.PLAY,
 	};
 
 	battleState = {
 		camera,
-		player,
+		playerHealth: 4,
+		enemyHealth: 4,
 		sprites,
 		spriteGroups,
 		lastState: FSMState.NONE,
@@ -165,8 +162,10 @@ async function setupApp(): Promise<void> {
 
 	game = {
 		scene: null,
-		nextScene: 'MENU',
+		// nextScene: 'MENU',
+		nextScene: 'DEBUG',
 		swapPalette: false,
+		debugState,
 		menuState,
 		battleState,
 	};
@@ -190,6 +189,9 @@ async function setupApp(): Promise<void> {
 			game.scene = game.nextScene;
 
 			switch (game.nextScene) {
+				case 'DEBUG':
+					debug.init(debugState, sprites, groups);
+					break;
 				case 'MENU':
 					[sprites[0], sprites[1]].forEach((sprite) => {
 						sprite.setPalette(0, 0, 3, 1);

@@ -150,3 +150,39 @@ export class SpriteGroup {
 		this.setPalette(0, 1, 2, 3);
 	}
 }
+
+export interface Frame {
+	frame: { x: number; y: number; w: number; h: number };
+	rotated: boolean;
+	trimmed: boolean;
+	spriteSourceSize: { x: number; y: number; w: number; h: number };
+	sourceSize: { w: number; h: number };
+}
+
+export interface Layer {
+	name: string;
+	group?: string;
+	opacity?: number;
+	blendMode?: 'normal' | 'additive' | 'multiply';
+}
+
+export type SpriteGroupName =
+	| 'Group 2'
+	| 'PREPARE SPRITE'
+	| 'HURT'
+	| 'Right ATK - WIP'
+	| 'Left ATK - WIP'
+	| 'Left ATK - WIP Copy'
+	| 'Down ATK'
+	| 'Up ATK'
+	| 'Neutral/Idle WIP'
+	| 'UI ELEMENTS'
+	| 'Hearts';
+// | 'DIRECT ARROWS - PRESSED'
+// | 'DIRECT_ARROWS'
+// | 'ACTION BOUNDARY';
+
+export type SpriteData = Record<
+	SpriteGroupName,
+	{ name: string; items: Layer[]; sprites: Frame[] }
+>;

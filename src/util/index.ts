@@ -1,5 +1,5 @@
-import { type Vec2 } from 'wgpu-matrix';
 import { Camera } from '~/renderer/camera';
+import type { DebugState } from '~/scenes/debug-scene';
 import { Sprite, SpriteGroup } from '~/sprite';
 
 export async function loadTexture(device: GPUDevice, url: string) {
@@ -29,30 +29,26 @@ export function clamp(v: number, min: number, max: number) {
 	return Math.min(Math.max(v, min), max);
 }
 
-export interface Player {
-	sprite: Sprite;
-	pos: Vec2;
-	health: number;
-}
-
 export const GROUP = {
 	BG: 'BG',
 	ENEMY: 'ENEMY',
 	HUD: 'HUD',
 } as const;
 
-type GameScene = 'MENU' | 'BATTLE' | null;
+type GameScene = 'DEBUG' | 'MENU' | 'BATTLE' | null;
 
 export interface Game {
 	scene: GameScene;
 	nextScene: GameScene;
 	swapPalette: boolean;
+	debugState: DebugState;
 	menuState: MenuState;
 	battleState: BattleState;
 }
 
 export interface SceneState {
 	camera: Camera;
+	spriteGroups: SpriteGroup[];
 	sprites: Sprite[];
 }
 
@@ -82,7 +78,8 @@ export enum FSMState {
 
 // gonna need raw, screen, and local pos
 export interface BattleState extends SceneState {
-	player: Player;
+	playerHealth: number;
+	enemyHealth: number;
 	spriteGroups: Map<keyof typeof GROUP, SpriteGroup>;
 	lastState: FSMState;
 	state: FSMState;

@@ -13,13 +13,19 @@ import type { Pipeline } from './pipelines/pipeline';
 import { PosterizePipeline } from './pipelines/posterize-pipeline';
 import { SpritePipeline } from './pipelines/sprite-pipeline';
 import * as _text from './text-renderer';
+import * as _debug from '~/scenes/debug-scene';
 import { TextRenderer } from './text-renderer';
 
 let text = _text;
+let debug = _debug;
 if (import.meta.hot) {
 	import.meta.hot.accept('./text-renderer', (mod) => {
 		// @ts-expect-error -- ignore
 		if (mod) text = mod;
+	});
+	import.meta.hot.accept('~/scenes/debug-scene', (mod) => {
+		// @ts-expect-error -- ignore
+		if (mod) debug = mod;
 	});
 }
 
@@ -367,6 +373,9 @@ function renderBattle(textRenderer: TextRenderer, battleState: BattleState) {
 export function render(renderer: Renderer, game: Game): void {
 	let sceneState: SceneState;
 	switch (game.scene) {
+		case 'DEBUG':
+			sceneState = game.debugState;
+			break;
 		case 'MENU':
 			sceneState = game.menuState;
 			break;
@@ -395,6 +404,9 @@ export function render(renderer: Renderer, game: Game): void {
 	text.reset(textRenderer);
 
 	switch (game.scene) {
+		case 'DEBUG':
+			debug.renderDebug(textRenderer, game.debugState);
+			break;
 		case 'MENU':
 			renderMenu(textRenderer, game.menuState);
 			break;

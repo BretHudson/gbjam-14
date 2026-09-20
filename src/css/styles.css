@@ -190,6 +190,23 @@ body {
 	grid-column: 1 / 2;
 }
 
+#console:not(:focus-within) {
+	#game-wrapper::after {
+		/* content: 'Click to focus'; */
+		position: absolute;
+		display: grid;
+		inset: 0;
+		background: #22222288;
+		z-index: 999;
+		color: white;
+		font-family: sans-serif;
+		font-size: 2rem;
+		font-weight: 700;
+		place-items: center;
+		pointer-events: none;
+	}
+}
+
 #game-wrapper {
 	display: grid;
 
@@ -205,21 +222,6 @@ body {
 	> * {
 		grid-column: 1;
 		grid-row: 1;
-	}
-
-	&:not(:focus-within)::after {
-		content: 'Click to focus';
-		position: absolute;
-		display: grid;
-		inset: 0;
-		background: #22222288;
-		z-index: 999;
-		color: white;
-		font-family: sans-serif;
-		font-size: 2rem;
-		font-weight: 700;
-		place-items: center;
-		pointer-events: none;
 	}
 }
 
