@@ -1,4 +1,4 @@
-import { clamp } from './util';
+import { clamp, type Palette } from './util';
 
 const INSTANCE_FLOATS = 11 + 1; // + 2 is padding
 
@@ -64,7 +64,7 @@ export class Sprite {
 	setMinLevel(level: number) {
 		const palette = Array.from({ length: 4 }, (_, i) => {
 			return Math.max(this.#defaultPalette[i], level);
-		}) as [number, number, number, number];
+		}) as Palette;
 
 		this.setPalette(...palette);
 	}
@@ -72,7 +72,7 @@ export class Sprite {
 	setMaxLevel(level: number) {
 		const palette = Array.from({ length: 4 }, (_, i) => {
 			return Math.min(this.#defaultPalette[i], level);
-		}) as [number, number, number, number];
+		}) as Palette;
 
 		this.setPalette(...palette);
 	}
@@ -80,7 +80,7 @@ export class Sprite {
 	setShift(shift: number) {
 		const palette = Array.from({ length: 4 }, (_P1, i) => {
 			return clamp(this.#defaultPalette[i] - shift, 0, 3);
-		}) as [number, number, number, number];
+		}) as Palette;
 
 		this.setPalette(...palette);
 	}
@@ -88,7 +88,7 @@ export class Sprite {
 	setInvShift(shift: number) {
 		const palette = Array.from({ length: 4 }, (_P1, i) => {
 			return clamp(this.#defaultPalette[i] + shift, 0, 3);
-		}) as [number, number, number, number];
+		}) as Palette;
 
 		this.setPalette(...palette);
 	}
@@ -116,7 +116,7 @@ export class Sprite {
 	}
 
 	cyclePalette() {
-		const palette = [...this.palette] as [number, number, number, number];
+		const palette = [...this.palette] as Palette;
 		palette.push(palette.shift() as number);
 		this.setPalette(...palette);
 	}

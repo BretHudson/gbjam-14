@@ -1,7 +1,7 @@
 import * as _battle from '~/scenes/battle-scene';
 import * as _debug from '~/scenes/debug-scene';
 import * as _menu from '~/scenes/menu-scene';
-import { Game, hexToRgb, SceneState } from '~/util';
+import { Game, hexToRgb, type Palette, SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
 import type { Camera } from './camera';
 import { PaletteSwapPipeline } from './pipelines/palette-swap-pipeline';
@@ -41,7 +41,7 @@ type PipelineConstructor<T extends Pipeline> = new (
 
 const instanceFloats = 16 + 16 + 4 + 4 + 4;
 
-const palettes: [number, number, number, number][][] = [];
+const palettes: Palette[][] = [];
 function createPalette(...colors: string[]) {
 	const palette = colors.map((c) => hexToRgb(c));
 	palettes.push(palette);
@@ -52,6 +52,7 @@ createPalette('#071821', '#306850', '#86c06c', '#e0f8cf');
 createPalette('#393829', '#7b7162', '#b4a56a', '#e6d69c');
 createPalette('#003049', '#d62828', '#f77f00', '#fcbf49');
 createPalette('#663333', '#0000aa', '#cc0000', '#00dd00');
+createPalette('#233933', '#A3574E', '#E6B95A', '#D5D8D1');
 
 export interface TexturePointer {
 	texture: GPUTexture;

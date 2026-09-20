@@ -31,6 +31,8 @@ export function clamp(v: number, min: number, max: number) {
 	return Math.min(Math.max(v, min), max);
 }
 
+export type Palette = [number, number, number, number];
+
 type GameScene = 'DEBUG' | 'MENU' | 'BATTLE' | null;
 
 export interface Game {
@@ -51,16 +53,13 @@ export interface SceneState {
 	sprites: Sprite[];
 }
 
-export function hexToRgb(hex: string): [number, number, number, number] {
+export function hexToRgb(hex: string): Palette {
 	const str = hex.replace('#', '').trim();
 	const rHex = str.substring(0, 2);
 	const gHex = str.substring(2, 4);
 	const bHex = str.substring(4, 6);
 
-	return [rHex, gHex, bHex, 'FF'].map((h) => parseInt(h, 16) / 255) as [
-		number,
-		number,
-		number,
-		number,
-	];
+	return [rHex, gHex, bHex, 'FF'].map(
+		(h) => parseInt(h, 16) / 255,
+	) as Palette;
 }
