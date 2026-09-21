@@ -141,9 +141,9 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	const total = renderer.palettes.length;
 
 	const options = [
-		'ENGAGE IN BATTLE',
-		`SWAP PALETTE (@${index}@/@${total}@)`,
-		'PLAY THE ORIGINAL',
+		'Start Game',
+		`Swap Palette (@${index}@/@${total}@)`,
+		'Play the Original',
 		'RESET CONSOLE',
 	];
 
@@ -160,6 +160,8 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	// renderTextWithOutline(textRenderer, title, 0, TEXT_Y, 3);
 
 	for (let i = 0; i < MenuOption.NUM; ++i) {
+		if (i === MenuOption.RESET) YY += 10;
+
 		const selected = i === menuState.option;
 		const prefix = selected ? ' ' : ' ';
 		renderTextWithOutline(
