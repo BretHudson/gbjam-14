@@ -448,7 +448,6 @@ export function render(renderer: Renderer, game: Game): void {
 			(renderPass) => {
 				renderPass.setBindGroup(0, uniformsBindGroup);
 
-				// console.log(sprites);
 				spritePipeline.render(renderPass, sprites);
 			},
 		);

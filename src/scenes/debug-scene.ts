@@ -28,8 +28,6 @@ export function init(camera: Camera, spriteData: SpriteData): DebugState {
 		sprites: groups.flatMap((group) => group.sprites),
 	};
 
-	console.log(debugState.sprites);
-
 	return debugState;
 }
 

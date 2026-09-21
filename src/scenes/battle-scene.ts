@@ -770,8 +770,6 @@ export function render(textRenderer: TextRenderer, battleState: BattleState) {
 	const X_OFF = 38;
 	const Y_OFF = 36;
 
-	enemy.direction = Direction.Down;
-
 	if (battleState.showResultText) {
 		const str = didHit(battleState.hitResult) ? '' : 'MISS!';
 		ctx.fillStyle = '#222';
