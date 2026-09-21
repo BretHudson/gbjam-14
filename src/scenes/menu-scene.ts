@@ -208,14 +208,16 @@ export function render(renderer: Renderer, menuState: MenuState) {
 		const TITLE_Y = GAME_H / 2 - 38;
 		for (let yy = 5; yy >= -1; --yy) {
 			for (let xx = -1; xx <= 1; ++xx) {
+				ctx.fillStyle = '#333';
 				ctx.fillText('Battle II', GAME_W / 2 + xx, TITLE_Y + yy);
 			}
 		}
 
 		const w = 124;
+		ctx.fillStyle = '#333';
 		ctx.fillRect((GAME_W - w) / 2, TITLE_Y + 13, w, 2);
 
-		ctx.fillStyle = '#555';
+		ctx.fillStyle = '#fff';
 		ctx.fillText('Battle II', GAME_W / 2, TITLE_Y);
 
 		ctx.restore();
