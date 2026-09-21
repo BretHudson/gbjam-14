@@ -497,55 +497,6 @@ export function update(
 	battleState.lastState = battleState.state;
 }
 
-export function render(textRenderer: TextRenderer, battleState: BattleState) {
-	let XX = 0;
-	let YY = GAME_H - 21;
-
-	const { enemy } = battleState;
-	enemy.pose.sprites.forEach((sprite) => {
-		sprite.y -= enemy.bounce;
-	});
-
-	switch (battleState.state) {
-		case FSMState.FIGHT:
-			// text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);
-			// YY += 7;
-			// text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
-			// YY += 7;
-			// text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
-			break;
-		case FSMState.GAME_WON:
-			YY = GAME_H / 2 - 5;
-			XX = GAME_W / 2 - 18;
-			text.renderText(textRenderer, 'YOU WON!!', XX, YY, 0);
-			break;
-		case FSMState.GAME_OVER:
-			YY = GAME_H / 2 - 10;
-			XX = GAME_W / 2 - 8;
-			text.renderText(textRenderer, 'GAME', XX, YY, 0);
-			YY += 7;
-			text.renderText(textRenderer, 'OV@ER', XX, YY, 0);
-			break;
-	}
-
-	if (battleState.showResultText) {
-		const v = vec2.create();
-		dirToVec(enemy.direction, v);
-		v[0] *= -1;
-		v[1] *= -1;
-		const X_OFF = 44;
-		const Y_OFF = 46;
-		const str = didHit(battleState.hitResult) ? '' : 'MISSED!';
-		text.renderTextCentered(
-			textRenderer,
-			str,
-			v[0] * X_OFF,
-			GAME_H / 2 + v[1] * Y_OFF - 3,
-			0,
-		);
-	}
-}
-
 function* runIntro(battleState: BattleState) {
 	const { sprites, spriteGroups } = battleState;
 
@@ -767,6 +718,63 @@ function* runHitEnemy(battleState: BattleState) {
 	yield* pause(30);
 
 	lostHeart.setMaxLevel(1);
+}
+
+export function render(textRenderer: TextRenderer, battleState: BattleState) {
+	let XX = 0;
+	let YY = GAME_H - 21;
+
+	const { enemy } = battleState;
+	enemy.pose.sprites.forEach((sprite) => {
+		sprite.y -= enemy.bounce;
+	});
+
+	switch (battleState.state) {
+		case FSMState.FIGHT:
+			// text.renderText(textRenderer, ' > CYC SWINGS LEFT!!', XX, YY);
+			// YY += 7;
+			// text.renderText(textRenderer, '  > YOU DEFEND LEFT!!', XX, YY);
+			// YY += 7;
+			// text.renderText(textRenderer, '    @NO DAMAGE!', XX, YY);
+			break;
+		case FSMState.GAME_WON:
+			YY = GAME_H / 2 - 5;
+			XX = GAME_W / 2 - 18;
+			text.renderText(textRenderer, 'YOU WON!!', XX, YY, 0);
+			break;
+		case FSMState.GAME_OVER:
+			YY = GAME_H / 2 - 10;
+			XX = GAME_W / 2 - 8;
+			text.renderText(textRenderer, 'GAME', XX, YY, 0);
+			YY += 7;
+			text.renderText(textRenderer, 'OV@ER', XX, YY, 0);
+			break;
+	}
+
+	const { ctx } = textRenderer;
+	ctx.save();
+	ctx.imageSmoothingEnabled = false;
+	ctx.font = '12px "Sekuya", system-ui';
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'middle';
+	ctx.textRendering = 'geometricPrecision';
+
+	const v = vec2.create();
+	dirToVec(enemy.direction, v);
+	v[0] *= -1;
+	v[1] *= -1;
+	const X_OFF = 38;
+	const Y_OFF = 36;
+
+	enemy.direction = Direction.Down;
+
+	if (battleState.showResultText) {
+		const str = didHit(battleState.hitResult) ? '' : 'MISS!';
+		ctx.fillStyle = '#222';
+		ctx.fillText(str, GAME_W / 2 + v[0] * X_OFF, GAME_H / 2 + v[1] * Y_OFF);
+	}
+
+	ctx.restore();
 }
 
 export function postRender(

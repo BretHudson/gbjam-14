@@ -1,3 +1,4 @@
+import { vec2 } from 'wgpu-matrix';
 import type { ControllerInput } from '~/input';
 import { Camera } from '~/renderer/camera';
 import { getSpriteGroups } from '~/renderer/render-utils';
@@ -30,7 +31,7 @@ export interface MenuState extends SceneState {
 }
 
 export function init(camera: Camera, spriteData: SpriteData): MenuState {
-	const spriteGroups = getSpriteGroups(spriteData, 'Background');
+	const spriteGroups = getSpriteGroups(spriteData);
 
 	const menuState: MenuState = {
 		camera,
@@ -52,7 +53,7 @@ export function reset(menuState: MenuState) {
 
 let timerX = 0;
 let timerY = 0;
-let timeout = 12;
+let timeout = 20;
 
 export function update(
 	dt: number,
@@ -87,7 +88,7 @@ export function update(
 	switch (menuState.option) {
 		case MenuOption.PALETTE:
 			if (deltaX !== 0 && timerX === 0) {
-				timerX = timeout;
+				timerX = timeout * 1.5;
 				game.swapPalette = deltaX;
 			}
 			break;
@@ -152,11 +153,11 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	options[menuState.option] = str;
 
 	const spacing = 10;
-	let YY = Math.floor((GAME_H - spacing) / 2) - 5;
+	let YY = Math.floor((GAME_H - spacing) / 2);
 
-	const title = 'B@A@T@T@L@E  II';
-	const TEXT_Y = YY - 20;
-	renderTextWithOutline(textRenderer, title, 0, TEXT_Y, 3);
+	// const title = 'B@A@T@T@L@E  II';
+	// const TEXT_Y = YY - 20;
+	// renderTextWithOutline(textRenderer, title, 0, TEXT_Y, 3);
 
 	for (let i = 0; i < MenuOption.NUM; ++i) {
 		const selected = i === menuState.option;
@@ -170,6 +171,32 @@ export function render(renderer: Renderer, menuState: MenuState) {
 			selected ? 1 : 0,
 		);
 		YY += spacing;
+	}
+
+	{
+		const { ctx } = textRenderer;
+		ctx.save();
+		ctx.imageSmoothingEnabled = false;
+		ctx.font = '14pt "Sekuya", system-ui';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.textRendering = 'geometricPrecision';
+
+		ctx.fillStyle = '#333';
+		const TITLE_Y = GAME_H / 2 - 38;
+		for (let yy = 5; yy >= -1; --yy) {
+			for (let xx = -1; xx <= 1; ++xx) {
+				ctx.fillText('Battle II', GAME_W / 2 + xx, TITLE_Y + yy);
+			}
+		}
+
+		const w = 124;
+		ctx.fillRect((GAME_W - w) / 2, TITLE_Y + 13, w, 2);
+
+		ctx.fillStyle = '#555';
+		ctx.fillText('Battle II', GAME_W / 2, TITLE_Y);
+
+		ctx.restore();
 	}
 
 	const colors = ['#000', '#333', '#aaa', '#fff'];

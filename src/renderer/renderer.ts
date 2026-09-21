@@ -52,10 +52,17 @@ function createPalette(...colors: string[]) {
 }
 
 const _palettes = [
+	// createPalette('#32383e', '#72797e', '#b4b8be', '#ff2247'), // GB AM90
+
 	createPalette('#071821', '#306850', '#86c06c', '#e0f8cf'),
-	createPalette('#393829', '#7b7162', '#b4a56a', '#e6d69c'),
-	createPalette('#003049', '#d62828', '#f77f00', '#fcbf49'),
-	createPalette('#233933', '#A3574E', '#E6B95A', '#D5D8D1'),
+	createPalette('#233933', '#A3574E', '#E6B95A', '#D5D8D1'), // GBJam 14
+	createPalette('#21193c', '#932f7b', '#e67b8b', '#f5d2b8'), // singularity
+	createPalette('#393829', '#7b7162', '#b4a56a', '#e6d69c'), // muddysand
+
+	createPalette('#7c3f58', '#eb6b6f', '#f9a875', '#fff6d3'), // ice cream gb
+	createPalette('#051e45', '#0b586e', '#1cb099', '#42f4af'), // soulscape
+	createPalette('#051f39', '#4a2480', '#c53a9d', '#ff8e80'), // lava-gb
+	createPalette('#222323', '#c93038', '#7fa663', '#f0f6f0'), // dreamful space
 ];
 
 // soulscape
