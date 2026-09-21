@@ -4,17 +4,10 @@ import { Camera } from '~/renderer/camera';
 import { getSpriteGroups } from '~/renderer/render-utils';
 import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
-import { SpriteData, SpriteGroup } from '~/sprite';
+import { Sprite, SpriteData, SpriteGroup } from '~/sprite';
 import type { Game, SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
-import {
-	chain,
-	fadeIn,
-	fadeIn2,
-	parallel,
-	pause,
-	repeat,
-} from '~/util/generators';
+import { chain, fadeIn, fadeIn2, parallel, pause } from '~/util/generators';
 
 let text = _text;
 if (import.meta.hot) {
@@ -26,6 +19,7 @@ if (import.meta.hot) {
 
 const BG_AND_ENEMY = 3;
 
+const DODGE_WINDUP = -12;
 const DODGE_OFFSET = 32;
 
 export const GROUP = {
@@ -62,15 +56,24 @@ type EnemyState = 'IDLE' | 'PREPARE' | 'ATTACK' | 'HURT';
 
 interface Player {
 	health: number;
+	heartsSprites: SpriteGroup;
+	hurt: boolean;
+
 	direction: Direction;
 	directionVec: Vec2;
 }
 
 interface Enemy {
-	health: number;
 	state: EnemyState;
+
+	health: number;
+	heartsSprites: SpriteGroup;
+	hurt: boolean;
+
 	direction: Direction;
 	directionVec: Vec2;
+
+	bounce: number;
 	pose: SpriteGroup;
 	poses: {
 		prepare: SpriteGroup;
@@ -81,7 +84,6 @@ interface Enemy {
 		up: SpriteGroup;
 		hurt: SpriteGroup;
 	};
-	bounce: number;
 }
 
 export interface BattleState extends SceneState {
@@ -95,6 +97,8 @@ export interface BattleState extends SceneState {
 	defender: Player | Enemy;
 	hitResult: number;
 
+	showResultText: boolean;
+
 	player: Player;
 	enemy: Enemy;
 }
@@ -103,8 +107,6 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 	const spriteGroups = getSpriteGroups(
 		spriteData,
 		'Background',
-		'HEARTS',
-		'HEARTS',
 		'Prepare',
 		'IDLE',
 		'Right/Left ATK',
@@ -112,12 +114,14 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 		'Down ATK',
 		'Up ATK',
 		'HURT',
+		'HEARTS',
+		'HEARTS',
 		'DIRECTIONAL ARROWS',
 	);
 
 	const sprites = spriteGroups.flatMap((group) => group.sprites);
 
-	const [_bg, hearts, hearts2, prepare, idle, left, right, down, up, hurt] =
+	const [_bg, prepare, idle, left, right, down, up, hurt, hearts, hearts2] =
 		spriteGroups;
 
 	hearts.sprites.forEach((sprite) => {
@@ -129,13 +133,20 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 
 	const player: Player = {
 		health: 4,
+		heartsSprites: hearts,
+		hurt: false,
+
 		direction: Direction.None,
 		directionVec: vec2.create(0, 0),
 	};
 
 	const enemy: Enemy = {
-		health: 4,
 		state: 'IDLE',
+
+		health: 4,
+		heartsSprites: hearts2,
+		hurt: false,
+
 		direction: Direction.None,
 		directionVec: vec2.create(0, 0),
 		pose: prepare,
@@ -167,15 +178,18 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 		defender: enemy,
 		hitResult: 0,
 
+		showResultText: false,
+
 		player,
 		enemy,
 	};
 
 	spriteGroups
-		.slice(BG_AND_ENEMY, -1)
+		.slice(BG_AND_ENEMY, -3)
 		.forEach((group) => (group.visible = false));
 
 	setEnemyPose(battleState, 'IDLE');
+	offsetEnemy(enemy, 0);
 
 	return battleState;
 }
@@ -202,18 +216,20 @@ export function reset(battleState: BattleState) {
 	camera.target[1] = 0;
 
 	setEnemyPose(battleState, 'IDLE');
+	offsetEnemy(enemy, 0);
 
 	battleState.skipIntro = false;
 }
 
 function updateHearts(
+	entity: Player | Enemy,
 	hearts: SpriteGroup,
-	health: number,
 	frameId: number,
 	animate = true,
 ) {
 	const sprites = hearts.sprites.slice(1);
-	const healthCount = health;
+	let healthCount = entity.health;
+	if (entity.hurt) ++healthCount;
 	const curI = Math.floor(frameId / 15) % (sprites.length + 2);
 	for (let i = 0; i < healthCount; ++i) {
 		if (animate) sprites[i].y = i === curI ? -1 : 0;
@@ -286,7 +302,9 @@ function evaluateBattle(battleState: BattleState) {
 
 	if (didHit(battleState.hitResult)) {
 		defender.health -= 1;
+		defender.hurt = true;
 	}
+
 	battleState.nextState = FSMState.FIGHT;
 }
 
@@ -453,7 +471,7 @@ export function update(
 			}
 
 			// enemy pos
-			const offsetHint = 2;
+			const offsetHint = 0;
 			offsetEnemy(enemy, offsetHint);
 		}
 	}
@@ -469,8 +487,8 @@ export function update(
 	if (animateHearts) {
 		const heartsPlayer = spriteGroups[1];
 		const heartsEnemy = spriteGroups[2];
-		updateHearts(heartsPlayer, player.health, frameId, false);
-		updateHearts(heartsEnemy, enemy.health, frameId, false);
+		updateHearts(player, heartsPlayer, frameId, false);
+		updateHearts(enemy, heartsEnemy, frameId, false);
 	}
 
 	// frame timer
@@ -509,6 +527,23 @@ export function render(textRenderer: TextRenderer, battleState: BattleState) {
 			text.renderText(textRenderer, 'OV@ER', XX, YY, 0);
 			break;
 	}
+
+	if (battleState.showResultText) {
+		const v = vec2.create();
+		dirToVec(enemy.direction, v);
+		v[0] *= -1;
+		v[1] *= -1;
+		const X_OFF = 44;
+		const Y_OFF = 46;
+		const str = didHit(battleState.hitResult) ? '' : 'MISSED!';
+		text.renderTextCentered(
+			textRenderer,
+			str,
+			v[0] * X_OFF,
+			GAME_H / 2 + v[1] * Y_OFF - 3,
+			0,
+		);
+	}
 }
 
 function* runIntro(battleState: BattleState) {
@@ -519,13 +554,11 @@ function* runIntro(battleState: BattleState) {
 
 	const enemy = battleState.enemy.pose.sprites;
 
-	const fadeInEye = fadeIn(enemy.slice(0, 2), 30);
-	const fadeInBody = fadeIn(enemy.slice(2), 30);
-	// const fadeInBg = fadeInReverse(spriteGroups[0].sprites.slice(0, 2), 30);
-	const fadeInBg = fadeIn(spriteGroups[0].sprites.slice(0, 2), 30);
+	const fadeInEnemy = fadeIn(enemy, 30);
+	const fadeInBg = fadeIn(spriteGroups[0].sprites, 30);
 	const fadeInHUD = parallel(
-		fadeIn2(spriteGroups[1].sprites),
-		fadeIn2(spriteGroups[2].sprites),
+		fadeIn2(spriteGroups.at(-2)!.sprites),
+		fadeIn2(spriteGroups.at(-3)!.sprites),
 		chain(pause(), fadeIn(spriteGroups.at(-1)!.sprites)),
 	);
 
@@ -533,7 +566,7 @@ function* runIntro(battleState: BattleState) {
 	spriteGroups[0].setPalette(0);
 
 	yield* chain(
-		parallel(fadeInEye, fadeInBody),
+		parallel(fadeInEnemy),
 		pause(),
 		fadeInBg,
 		pause(),
@@ -601,13 +634,72 @@ function* runAttack(battleState: BattleState) {
 }
 
 function* runAttackAtPlayer(battleState: BattleState) {
+	const { player, enemy, defender } = battleState;
+	const [bg] = battleState.spriteGroups;
+
+	const step = 4;
+	const backFrames = 8;
+	const attackFrames = 4;
+	const frames = 4;
+
+	for (let i = 2; i >= DODGE_WINDUP; i -= step) {
+		offsetEnemy(enemy, i);
+		yield* pause(backFrames);
+	}
+
+	for (let i = 0; i < 4; ++i) {
+		enemy.pose.sprites.forEach((sprite) => sprite.cyclePalette());
+		yield* pause(15);
+	}
+
 	setEnemyPose(battleState, 'ATTACK');
 
-	yield* pause(120);
+	for (let i = DODGE_WINDUP; i <= DODGE_OFFSET; i += step * 2) {
+		offsetEnemy(enemy, i);
+		yield* pause(attackFrames);
+	}
+
+	battleState.showResultText = true;
+
+	if (didHit(battleState.hitResult)) {
+		const lostHeart = player.heartsSprites.sprites[player.health + 1];
+
+		// heart
+		bg.setPalette(0);
+		lostHeart.cyclePalette();
+		yield* pause(30);
+
+		bg.setPalette(3);
+		lostHeart.cyclePalette();
+		yield* pause(30);
+
+		bg.setPalette(0);
+		lostHeart.cyclePalette();
+		yield* pause(30);
+
+		bg.resetPalette();
+		lostHeart.setMaxLevel(1);
+		yield* pause(30);
+	} else {
+		yield* pause(120);
+		// show missed text
+	}
+
+	defender.hurt = false;
+
+	battleState.showResultText = false;
+
+	for (let i = DODGE_OFFSET; i >= 0; i -= step) {
+		offsetEnemy(enemy, i);
+		yield* pause(frames);
+	}
+
+	setEnemyPose(battleState, 'IDLE');
+	offsetEnemy(enemy, 0);
 }
 
 function* runAttackAtEnemy(battleState: BattleState): Generator {
-	const { enemy } = battleState;
+	const { enemy, defender } = battleState;
 
 	const step = 4;
 	const frames = 4;
@@ -617,11 +709,20 @@ function* runAttackAtEnemy(battleState: BattleState): Generator {
 		yield* pause(frames);
 	}
 
+	battleState.showResultText = true;
+
 	if (didHit(battleState.hitResult)) {
 		yield* runHitEnemy(battleState);
 	} else {
 		yield* runMissedEnemy(battleState);
 	}
+
+	defender.hurt = false;
+
+	battleState.showResultText = false;
+
+	setEnemyPose(battleState, 'PREPARE');
+	offsetEnemy(enemy, DODGE_OFFSET);
 
 	for (let i = DODGE_OFFSET; i >= 0; i -= step) {
 		offsetEnemy(enemy, i);
@@ -642,19 +743,24 @@ function* runHitEnemy(battleState: BattleState) {
 
 	const bg = battleState.spriteGroups[0];
 
+	const lostHeart = enemy.heartsSprites.sprites[enemy.health + 1];
+
 	setEnemyPose(battleState, 'HURT');
 	offsetEnemy(enemy, DODGE_OFFSET);
+	lostHeart.cyclePalette();
 	yield* pause(30);
 
 	enemy.pose.setPalette(3);
 	bg.setPalette(3, 2, 1, 0);
+	lostHeart.cyclePalette();
 	yield* pause(30);
 
 	enemy.pose.resetPalette();
 	bg.resetPalette();
+	lostHeart.cyclePalette();
 	yield* pause(30);
 
-	setEnemyPose(battleState, 'PREPARE');
+	lostHeart.setMaxLevel(1);
 }
 
 export function postRender(
