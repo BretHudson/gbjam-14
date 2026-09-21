@@ -596,9 +596,15 @@ function setEnemyPose(battleState: BattleState, enemyState: EnemyState) {
 			switch (enemy.direction) {
 				case Direction.Left:
 					enemy.pose = enemy.poses.left;
+					enemy.pose.sprites.forEach(
+						(sprite) => (sprite.flipped = false),
+					);
 					break;
 				case Direction.Right:
 					enemy.pose = enemy.poses.right;
+					enemy.pose.sprites.forEach(
+						(sprite) => (sprite.flipped = true),
+					);
 					break;
 				case Direction.Up:
 					enemy.pose = enemy.poses.up;

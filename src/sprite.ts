@@ -1,6 +1,6 @@
 import { clamp, type Palette } from './util';
 
-const INSTANCE_FLOATS = 11 + 1; // + 2 is padding
+const INSTANCE_FLOATS = 12 + 0; // + 0 is padding
 
 // prettier-ignore
 const [
@@ -9,6 +9,7 @@ const [
 	TX, TY,
 	W, H,
 	TEX_ID,
+	FLIP,
 ] = Array.from(
 	{ length: INSTANCE_FLOATS },
 	(_, i) => i,
@@ -194,6 +195,13 @@ export class Sprite {
 	}
 	set textureId(value) {
 		this._data[TEX_ID] = value;
+	}
+
+	get flipped(): boolean {
+		return this._data[FLIP] !== 0;
+	}
+	set flipped(value: boolean) {
+		this._data[FLIP] = value ? 1 : 0;
 	}
 }
 

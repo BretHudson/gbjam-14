@@ -178,7 +178,7 @@ export class SpritePipeline extends Pipeline {
 			},
 			primitive: {
 				topology: 'triangle-list',
-				cullMode: 'back',
+				cullMode: 'none',
 			},
 			depthStencil: {
 				depthWriteEnabled: true,

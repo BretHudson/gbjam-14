@@ -12,6 +12,7 @@ struct SpriteRect {
     offset: vec2f,
     size: vec2f,
     texture_id: f32,
+    flipped: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -69,7 +70,9 @@ fn vs(
     if sprite.texture_id > 0 {
         size = uniforms.text_size;
     }
-    let spriteUv = (sprite.offset + (uv * sprite.size)) / size;
+
+    let tex_uv = vec2f(select(uv.x, 1.0 - uv.x, sprite.flipped > 0.5), uv.y);
+    let sprite_uv = (sprite.offset + (tex_uv * sprite.size)) / size;
 
     let uv2 = vec2f(
         uv.x * dimensions.x,
@@ -78,12 +81,12 @@ fn vs(
 
     var offset = BASES[0u] * uv2;
 
-    let worldPos = offset;
+    let world_pos = offset;
 
     var out: VertexOutput;
-    // out.pos = uniforms.mvp * rot2D(uniforms.time * .2) * vec4f(worldPos, 1.0);
-    out.pos = uniforms.mvp * vec4f(worldPos, 1.0);
-    out.uv = spriteUv;
+    // out.pos = uniforms.mvp * rot2D(uniforms.time * .2) * vec4f(world_pos, 1.0);
+    out.pos = uniforms.mvp * vec4f(world_pos, 1.0);
+    out.uv = sprite_uv;
     out.palette = sprite.palette;
     out.texture_id = sprite.texture_id;
 
@@ -92,9 +95,11 @@ fn vs(
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-    let sample1 = textureSample(spritesheet_texture, sprite_sampler, in.uv);
-    let sample2 = textureSample(splash_texture, sprite_sampler, in.uv);
-    let sample3 = textureSample(text_texture, sprite_sampler, in.uv);
+    var uv = in.uv;
+
+    let sample1 = textureSample(spritesheet_texture, sprite_sampler, uv);
+    let sample2 = textureSample(splash_texture, sprite_sampler, uv);
+    let sample3 = textureSample(text_texture, sprite_sampler, uv);
     var sample = sample1;
     if in.texture_id == 1. {
         sample = sample3;
