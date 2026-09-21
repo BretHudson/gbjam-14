@@ -239,7 +239,7 @@ async function setupApp(): Promise<void> {
 			debugInfo.classList.toggle('visible');
 			game.debugEnabled = !game.debugEnabled;
 		}
-		game.swapPalette ||= controllerInput.keyPressed('Select') ? 1 : 0;
+		// game.swapPalette ||= controllerInput.keyPressed('Select') ? 1 : 0;
 
 		if (game.swapPalette !== 0) {
 			render.nextPalette(renderer, game.swapPalette);
