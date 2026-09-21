@@ -88,5 +88,13 @@ export function update(
 }
 
 export function render(textRenderer: TextRenderer, bootState: BootState) {
-	//
+	const { ctx } = textRenderer;
+	ctx.save();
+	ctx.imageSmoothingEnabled = false;
+	ctx.font = '14pt "Sekuya", system-ui';
+
+	ctx.fillStyle = '#555';
+	ctx.fillText('Battle II', 0, GAME_H * 2);
+
+	ctx.restore();
 }

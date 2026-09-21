@@ -177,8 +177,8 @@ async function setupApp(): Promise<void> {
 	};
 
 	if (import.meta.hot) {
-		game.battleState.skipIntro = true;
-		game.nextScene = 'BATTLE';
+		// game.battleState.skipIntro = true;
+		// game.nextScene = 'BATTLE';
 	}
 
 	addTextSprite(game.bootState.sprites);
