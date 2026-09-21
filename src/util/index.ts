@@ -46,6 +46,8 @@ export interface Game {
 	battleState: BattleState;
 	debugState: DebugState;
 
+	palette: Palette;
+
 	frameId: number;
 	curGenerator: Generator | null;
 }

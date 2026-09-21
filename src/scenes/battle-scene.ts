@@ -329,6 +329,10 @@ export function update(
 	game: Game,
 	controller: ControllerInput,
 ): void {
+	for (let i = 0; i < 4; ++i) {
+		game.palette[i] = i;
+	}
+
 	const { battleState, frameId } = game;
 
 	const { rawInput: input } = controller;

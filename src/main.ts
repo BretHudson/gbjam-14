@@ -172,6 +172,8 @@ async function setupApp(): Promise<void> {
 		battleState: battle.init(cam.create(), groups),
 		debugState: debug.init(cam.create(), groups),
 
+		palette: [0, 1, 2, 3],
+
 		frameId: 0,
 		curGenerator: null,
 	};

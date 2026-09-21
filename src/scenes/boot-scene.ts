@@ -4,7 +4,7 @@ import { getSpriteGroups } from '~/renderer/render-utils';
 import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
 import { Sprite, type SpriteData } from '~/sprite';
-import type { Game, SceneState } from '~/util';
+import { clamp, type Game, type SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
 import { pause } from '~/util/generators';
 
@@ -53,14 +53,18 @@ function* runAnimate(game: Game) {
 	const [sprite] = bootState.sprites;
 
 	for (let i = 0; i < 4; ++i) {
-		sprite.setShift(-3 + i);
+		for (let j = 0; j < 4; ++j) {
+			game.palette[j] = clamp(j + 3 - i, 0, 3);
+		}
 		yield* pause(30);
 	}
 
 	yield* pause(30);
 
 	for (let i = 0; i < 4; ++i) {
-		sprite.setShift(i);
+		for (let j = 0; j < 4; ++j) {
+			game.palette[j] = clamp(j - i, 0, 3);
+		}
 		yield* pause(30);
 	}
 

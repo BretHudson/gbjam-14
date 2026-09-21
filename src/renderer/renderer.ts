@@ -329,10 +329,19 @@ export class Renderer {
 	}
 }
 
-function updateUniforms(renderer: Renderer, camera: Camera): void {
+function updateUniforms(
+	renderer: Renderer,
+	globalPalette: Palette,
+	camera: Camera,
+): void {
 	const { uniformData, palettes, paletteIndex: palette } = renderer;
 	uniformData.set(camera.viewProjMatrix);
-	uniformData.set(palettes[palette].flat(), 16);
+
+	const curPalette = palettes[palette];
+
+	const frick = globalPalette.map((v) => curPalette[v]);
+
+	uniformData.set(frick.flat(), 16);
 	uniformData.set(
 		[SpritePipeline.texture.width, SpritePipeline.texture.height],
 		32,
@@ -375,7 +384,7 @@ export function render(renderer: Renderer, game: Game): void {
 		uniformsBindGroup,
 	} = renderer;
 
-	updateUniforms(renderer, camera);
+	updateUniforms(renderer, game.palette, camera);
 
 	text.reset(textRenderer);
 

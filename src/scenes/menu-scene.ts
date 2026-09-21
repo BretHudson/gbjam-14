@@ -49,6 +49,9 @@ export function init(camera: Camera, spriteData: SpriteData): MenuState {
 
 export function reset(menuState: MenuState) {
 	menuState.option = 0;
+
+	frameId = 0;
+	selectionFrameId = 0;
 }
 
 let timerX = 0;
@@ -62,6 +65,11 @@ export function update(
 ): void {
 	const { menuState, battleState } = game;
 
+	const shift = Math.max(0, 3 - Math.floor(frameId++ / 15));
+	for (let i = 0; i < 4; ++i) {
+		game.palette[i] = Math.max(0, i - shift);
+	}
+
 	timerX = Math.max(0, --timerX);
 	timerY = Math.max(0, --timerY);
 	function switchOption(delta: number) {
@@ -70,7 +78,7 @@ export function update(
 
 		menuState.option += delta;
 		timerY = timeout;
-		frameId = 0;
+		selectionFrameId = 0;
 	}
 
 	let deltaX = 0;
@@ -134,6 +142,7 @@ function renderTextWithOutline(
 }
 
 let frameId = 0;
+let selectionFrameId = 0;
 export function render(renderer: Renderer, menuState: MenuState) {
 	const { textRenderer } = renderer;
 
@@ -148,7 +157,7 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	];
 
 	let str = options[menuState.option];
-	const space = Math.floor(frameId++ / 30) % 2 ? '@@@' : '@@@@@';
+	const space = Math.floor(selectionFrameId++ / 30) % 2 ? '@@@' : '@@@@@';
 	str = `>${space}` + str + `${space}<`;
 	options[menuState.option] = str;
 
