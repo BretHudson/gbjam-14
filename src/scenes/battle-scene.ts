@@ -1,4 +1,4 @@
-import { vec2 } from 'wgpu-matrix';
+import { Vec2, vec2 } from 'wgpu-matrix';
 import type { ControllerInput } from '~/input';
 import { Camera } from '~/renderer/camera';
 import { getSpriteGroups } from '~/renderer/render-utils';
@@ -26,6 +26,8 @@ if (import.meta.hot) {
 
 const BG_AND_ENEMY = 3;
 
+const DODGE_OFFSET = 32;
+
 export const GROUP = {
 	BG: 'BG',
 	ENEMY: 'ENEMY',
@@ -38,6 +40,7 @@ export enum FSMState {
 	INTRO,
 	PLAYER_INPUT,
 	FIGHT,
+	END_FIGHT,
 
 	GAME_WON,
 	GAME_OVER,
@@ -48,7 +51,7 @@ export enum FSMState {
 }
 
 enum Direction {
-	None,
+	None = -1,
 	Right,
 	Up,
 	Left,
@@ -59,13 +62,15 @@ type EnemyState = 'IDLE' | 'PREPARE' | 'ATTACK' | 'HURT';
 
 interface Player {
 	health: number;
-	attack: Direction;
+	direction: Direction;
+	directionVec: Vec2;
 }
 
 interface Enemy {
 	health: number;
 	state: EnemyState;
-	attack: Direction;
+	direction: Direction;
+	directionVec: Vec2;
 	pose: SpriteGroup;
 	poses: {
 		prepare: SpriteGroup;
@@ -86,8 +91,11 @@ export interface BattleState extends SceneState {
 
 	skipIntro: boolean;
 
-	player: Player;
+	attacker: Player | Enemy;
+	defender: Player | Enemy;
+	hitResult: number;
 
+	player: Player;
 	enemy: Enemy;
 }
 
@@ -119,6 +127,30 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 		sprite.offsetX = GAME_W - sprite.offsetX - sprite.width;
 	});
 
+	const player: Player = {
+		health: 4,
+		direction: Direction.None,
+		directionVec: vec2.create(0, 0),
+	};
+
+	const enemy: Enemy = {
+		health: 4,
+		state: 'IDLE',
+		direction: Direction.None,
+		directionVec: vec2.create(0, 0),
+		pose: prepare,
+		poses: {
+			prepare,
+			idle,
+			left,
+			right,
+			down,
+			up,
+			hurt,
+		},
+		bounce: 0,
+	};
+
 	const initialState = FSMState.PLAYER_INPUT;
 	const battleState: BattleState = {
 		camera,
@@ -131,34 +163,19 @@ export function init(camera: Camera, spriteData: SpriteData): BattleState {
 		state: FSMState.NONE,
 		nextState: initialState,
 
-		player: {
-			health: 4,
-			attack: Direction.None,
-		},
+		attacker: player,
+		defender: enemy,
+		hitResult: 0,
 
-		enemy: {
-			health: 4,
-			state: 'IDLE',
-			attack: Direction.None,
-			pose: prepare,
-			poses: {
-				prepare,
-				idle,
-				left,
-				right,
-				down,
-				up,
-				hurt,
-			},
-			bounce: 0,
-		},
+		player,
+		enemy,
 	};
 
 	spriteGroups
 		.slice(BG_AND_ENEMY, -1)
 		.forEach((group) => (group.visible = false));
 
-	setEnemyPose(battleState, 'PREPARE');
+	setEnemyPose(battleState, 'IDLE');
 
 	return battleState;
 }
@@ -171,13 +188,20 @@ export function reset(battleState: BattleState) {
 		? FSMState.PLAYER_INPUT
 		: FSMState.INTRO;
 
+	battleState.attacker = player;
+	battleState.defender = enemy;
+	battleState.hitResult = 0;
+
 	player.health = 4;
+	player.direction = Direction.None;
+
 	enemy.health = 4;
+	enemy.direction = Direction.None;
 
 	camera.target[0] = 0;
 	camera.target[1] = 0;
 
-	setEnemyPose(battleState, 'PREPARE');
+	setEnemyPose(battleState, 'IDLE');
 
 	battleState.skipIntro = false;
 }
@@ -198,6 +222,86 @@ function updateHearts(
 		if (animate) sprites[i].y = 0;
 
 		sprites[i].setMaxLevel(1);
+	}
+}
+
+function dirToVec(direction: Direction, dst: Vec2) {
+	switch (direction) {
+		case Direction.None:
+			vec2.set(0, 0, dst);
+			break;
+		case Direction.Left:
+			vec2.set(-1, 0, dst);
+			break;
+		case Direction.Right:
+			vec2.set(1, 0, dst);
+			break;
+		case Direction.Up:
+			vec2.set(0, -1, dst);
+			break;
+		case Direction.Down:
+			vec2.set(0, 1, dst);
+			break;
+	}
+}
+
+function offsetEnemy(enemy: Enemy, amount = 1) {
+	const [first] = enemy.pose.sprites;
+	first.x = 0;
+	first.y = 0;
+	switch (enemy.direction) {
+		case Direction.None:
+			break;
+		case Direction.Left:
+			first.x = -amount;
+			break;
+		case Direction.Right:
+			first.x = amount;
+			break;
+		case Direction.Up:
+			first.y = -amount;
+			break;
+		case Direction.Down:
+			first.y = amount;
+			break;
+	}
+	enemy.pose.sprites.slice(1).forEach((sprite) => {
+		sprite.x = first.x;
+		sprite.y = first.y;
+	});
+}
+
+function didHit(hitResult: number): boolean {
+	return hitResult > 0;
+}
+
+function evaluateBattle(battleState: BattleState) {
+	const { attacker, defender } = battleState;
+
+	dirToVec(attacker.direction, attacker.directionVec);
+	dirToVec(defender.direction, defender.directionVec);
+
+	const d = vec2.dot(attacker.directionVec, defender.directionVec);
+	battleState.hitResult = d;
+
+	if (didHit(battleState.hitResult)) {
+		defender.health -= 1;
+	}
+	battleState.nextState = FSMState.FIGHT;
+}
+
+function dirToArrowSpriteIndex(dir: Direction) {
+	switch (dir) {
+		case Direction.Right:
+			return 1;
+		case Direction.Down:
+			return 0;
+		case Direction.Left:
+			return 2;
+		case Direction.Up:
+			return 3;
+		default:
+			return -1;
 	}
 }
 
@@ -242,12 +346,33 @@ export function update(
 				break;
 
 			case FSMState.PLAYER_INPUT:
-				setEnemyPose(battleState, 'PREPARE');
+				enemy.direction = Math.floor(Math.random() * 4);
+				if (battleState.attacker === enemy) {
+					setEnemyPose(battleState, 'PREPARE');
+				} else {
+					setEnemyPose(battleState, 'IDLE');
+				}
 				break;
 
 			case FSMState.FIGHT:
-				game.curGenerator = runFight(battleState);
+				game.curGenerator = runAttack(battleState);
 				break;
+
+			case FSMState.END_FIGHT: {
+				const { attacker, defender } = battleState;
+				battleState.attacker = defender;
+				battleState.defender = attacker;
+
+				if (player.health <= 0) {
+					battleState.nextState = FSMState.GAME_OVER;
+				} else if (enemy.health <= 0) {
+					battleState.nextState = FSMState.GAME_WON;
+				} else {
+					battleState.nextState = FSMState.PLAYER_INPUT;
+				}
+
+				break;
+			}
 
 			case FSMState.GAME_WON:
 				enemy.pose.visible = false;
@@ -307,38 +432,29 @@ export function update(
 				arrows.sprites[offset + 1].visible = !selected;
 			}
 
+			if (import.meta.hot) {
+				const ii = dirToArrowSpriteIndex(enemy.direction);
+				for (let i = 0; i < 4; ++i) {
+					let selected = i === ii;
+					const wantSelected = enemy === battleState.attacker;
+					const isWanted = selected === wantSelected;
+					arrows.sprites[2 * i + 1].x =
+						isWanted && game.debugEnabled ? 1000 : 0;
+				}
+			}
+
 			const canPlay = direction !== Direction.None;
 			if (
 				canPlay &&
 				(controller.keyPressed('B') || controller.keyPressed('A'))
 			) {
-				enemy.health -= 1;
-				battleState.nextState = FSMState.FIGHT;
+				player.direction = direction;
+				evaluateBattle(battleState);
 			}
-
-			enemy.attack = Direction.None as Direction;
-
-			const offset = 2;
 
 			// enemy pos
-			enemy.pose.sprites[0].x = 0;
-			enemy.pose.sprites[0].y = 0;
-			switch (enemy.attack) {
-				case Direction.None:
-					break;
-				case Direction.Left:
-					enemy.pose.sprites[0].x = -offset;
-					break;
-				case Direction.Right:
-					enemy.pose.sprites[0].x = offset;
-					break;
-				case Direction.Up:
-					enemy.pose.sprites[0].y = -offset;
-					break;
-				case Direction.Down:
-					enemy.pose.sprites[0].y = offset;
-					break;
-			}
+			const offsetHint = 2;
+			offsetEnemy(enemy, offsetHint);
 		}
 	}
 
@@ -408,7 +524,6 @@ function* runIntro(battleState: BattleState) {
 	// const fadeInBg = fadeInReverse(spriteGroups[0].sprites.slice(0, 2), 30);
 	const fadeInBg = fadeIn(spriteGroups[0].sprites.slice(0, 2), 30);
 	const fadeInHUD = parallel(
-		//
 		fadeIn2(spriteGroups[1].sprites),
 		fadeIn2(spriteGroups[2].sprites),
 		chain(pause(), fadeIn(spriteGroups.at(-1)!.sprites)),
@@ -444,6 +559,22 @@ function setEnemyPose(battleState: BattleState, enemyState: EnemyState) {
 		case 'PREPARE':
 			enemy.pose = enemy.poses.prepare;
 			break;
+		case 'ATTACK':
+			switch (enemy.direction) {
+				case Direction.Left:
+					enemy.pose = enemy.poses.left;
+					break;
+				case Direction.Right:
+					enemy.pose = enemy.poses.right;
+					break;
+				case Direction.Up:
+					enemy.pose = enemy.poses.up;
+					break;
+				case Direction.Down:
+					enemy.pose = enemy.poses.down;
+					break;
+			}
+			break;
 		default:
 			enemy.pose = new SpriteGroup();
 			break;
@@ -452,44 +583,78 @@ function setEnemyPose(battleState: BattleState, enemyState: EnemyState) {
 	enemy.pose.visible = true;
 }
 
-function* runFight(battleState: BattleState) {
-	const _bg = battleState.spriteGroups[0];
-	const bg = new SpriteGroup(..._bg.sprites.slice(0, 2));
+function* runAttack(battleState: BattleState) {
+	const { spriteGroups, player } = battleState;
+
+	const arrows = spriteGroups.at(-1)!;
+	for (let i = 0; i < 4; ++i) {
+		arrows.sprites[i * 2 + 1].visible = false;
+	}
+
+	if (battleState.attacker === player) {
+		yield* runAttackAtEnemy(battleState);
+	} else {
+		yield* runAttackAtPlayer(battleState);
+	}
+
+	battleState.nextState = FSMState.END_FIGHT;
+}
+
+function* runAttackAtPlayer(battleState: BattleState) {
+	setEnemyPose(battleState, 'ATTACK');
+
+	yield* pause(120);
+}
+
+function* runAttackAtEnemy(battleState: BattleState): Generator {
+	const { enemy } = battleState;
+
+	const step = 4;
+	const frames = 4;
+
+	for (let i = 2; i < DODGE_OFFSET; i += step) {
+		offsetEnemy(enemy, i);
+		yield* pause(frames);
+	}
+
+	if (didHit(battleState.hitResult)) {
+		yield* runHitEnemy(battleState);
+	} else {
+		yield* runMissedEnemy(battleState);
+	}
+
+	for (let i = DODGE_OFFSET; i >= 0; i -= step) {
+		offsetEnemy(enemy, i);
+		yield* pause(frames);
+	}
+}
+
+function* runMissedEnemy(battleState: BattleState) {
+	setEnemyPose(battleState, 'IDLE');
+
+	const { enemy } = battleState;
+
+	yield* pause(120);
+}
+
+function* runHitEnemy(battleState: BattleState) {
+	const { enemy } = battleState;
+
+	const bg = battleState.spriteGroups[0];
 
 	setEnemyPose(battleState, 'HURT');
-
+	offsetEnemy(enemy, DODGE_OFFSET);
 	yield* pause(30);
 
-	const enemy = battleState.enemy.pose;
-
-	enemy.setPalette(3);
+	enemy.pose.setPalette(3);
 	bg.setPalette(3, 2, 1, 0);
-	const vec = vec2.create(-3, 0);
+	yield* pause(30);
 
-	const startX = enemy.sprites[0].x;
-	const startY = enemy.sprites[0].y;
-
-	yield* repeat(4, function* () {
-		enemy.sprites.forEach((sprite) => {
-			sprite.x = vec[0];
-			sprite.y = vec[1];
-		});
-		yield* pause(15);
-		vec2.rotate(vec, vec2.zero(), -Math.PI / 2, vec);
-	});
-
-	enemy.sprites.forEach((sprite) => {
-		sprite.x = startX;
-		sprite.y = startY;
-	});
-
-	enemy.resetPalette();
+	enemy.pose.resetPalette();
 	bg.resetPalette();
-	yield* pause(15);
+	yield* pause(30);
 
-	const { health } = battleState.enemy;
-	const next = health > 0 ? FSMState.PLAYER_INPUT : FSMState.GAME_WON;
-	battleState.nextState = next;
+	setEnemyPose(battleState, 'PREPARE');
 }
 
 export function postRender(

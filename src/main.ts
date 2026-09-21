@@ -163,6 +163,7 @@ async function setupApp(): Promise<void> {
 		scene: null,
 		// nextScene: 'DEBUG',
 		nextScene: 'BOOT',
+		debugEnabled: false,
 		// nextScene: 'MENU',
 		// nextScene: 'BATTLE',
 		swapPalette: 0,
@@ -174,6 +175,11 @@ async function setupApp(): Promise<void> {
 		frameId: 0,
 		curGenerator: null,
 	};
+
+	if (import.meta.hot) {
+		game.battleState.skipIntro = true;
+		game.nextScene = 'BATTLE';
+	}
 
 	addTextSprite(game.bootState.sprites);
 	addTextSprite(game.menuState.sprites);
@@ -227,8 +233,10 @@ async function setupApp(): Promise<void> {
 
 		consoleUI.updateConsoleUI(controllerInput);
 
-		if (input.keyPressed('Backquote'))
+		if (input.keyPressed('Backquote')) {
 			debugInfo.classList.toggle('visible');
+			game.debugEnabled = !game.debugEnabled;
+		}
 		game.swapPalette ||= controllerInput.keyPressed('Select') ? 1 : 0;
 
 		if (game.swapPalette !== 0) {
