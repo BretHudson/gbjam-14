@@ -74,6 +74,7 @@ export function debugText(game: Game) {
 		str += `\
 State: ${battleState.state} (${key})
 Enemy: ${battleState.enemy.state}
+Dir: ${battleState.enemy.attack}
 `;
 	}
 

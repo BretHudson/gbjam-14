@@ -17,10 +17,17 @@ export class SpritePipeline extends Pipeline {
 
 	outputTexture!: TexturePointer;
 
+	static splashTexture: GPUTexture;
 	static texture: GPUTexture;
 	textTexture!: GPUTexture;
 
 	async init(renderer: Renderer): Promise<this> {
+		const splashTexture = await loadTexture(
+			renderer.device,
+			'img/gbjam-14-splash.png',
+		);
+		SpritePipeline.splashTexture = splashTexture;
+
 		const texture = await loadTexture(
 			renderer.device,
 			'img/spritesheet.png',
@@ -128,6 +135,15 @@ export class SpritePipeline extends Pipeline {
 						},
 						{
 							binding: 3,
+							visibility: GPUShaderStage.FRAGMENT,
+							texture: {
+								sampleType: 'float',
+								viewDimension: '2d',
+								multisampled: false,
+							},
+						},
+						{
+							binding: 4,
 							visibility: GPUShaderStage.VERTEX,
 							buffer: { type: 'read-only-storage' },
 						},
@@ -190,10 +206,14 @@ export class SpritePipeline extends Pipeline {
 				},
 				{
 					binding: 2,
-					resource: this.textTexture.createView(),
+					resource: SpritePipeline.splashTexture.createView(),
 				},
 				{
 					binding: 3,
+					resource: this.textTexture.createView(),
+				},
+				{
+					binding: 4,
 					resource: { buffer: this.spriteBuffer },
 				},
 			],

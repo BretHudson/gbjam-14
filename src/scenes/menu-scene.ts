@@ -4,7 +4,7 @@ import { getSpriteGroups } from '~/renderer/render-utils';
 import { Renderer } from '~/renderer/renderer';
 import * as _text from '~/renderer/text-renderer';
 import { TextRenderer } from '~/renderer/text-renderer';
-import { Sprite, type SpriteData } from '~/sprite';
+import { type SpriteData } from '~/sprite';
 import { type Game, type SceneState } from '~/util';
 import { GAME_H, GAME_W } from '~/util/constants';
 

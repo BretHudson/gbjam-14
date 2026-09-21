@@ -18,8 +18,9 @@ struct SpriteRect {
 
 @group(1) @binding(0) var sprite_sampler: sampler;
 @group(1) @binding(1) var spritesheet_texture: texture_2d<f32>;
-@group(1) @binding(2) var text_texture: texture_2d<f32>;
-@group(1) @binding(3) var<storage, read> sprites: array<SpriteRect>;
+@group(1) @binding(2) var splash_texture: texture_2d<f32>;
+@group(1) @binding(3) var text_texture: texture_2d<f32>;
+@group(1) @binding(4) var<storage, read> sprites: array<SpriteRect>;
 
 struct VertexOutput {
     @builtin(position) pos: vec4f,
@@ -65,7 +66,7 @@ fn vs(
     let uv = vec2f(f32(quad_index & 1u), f32((quad_index >> 1u) & 1u));
 
     var size = uniforms.spritesheet_size;
-    if sprite.texture_id == 1 {
+    if sprite.texture_id > 0 {
         size = uniforms.text_size;
     }
     let spriteUv = (sprite.offset + (uv * sprite.size)) / size;
@@ -92,9 +93,13 @@ fn vs(
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
     let sample1 = textureSample(spritesheet_texture, sprite_sampler, in.uv);
-    let sample2 = textureSample(text_texture, sprite_sampler, in.uv);
+    let sample2 = textureSample(splash_texture, sprite_sampler, in.uv);
+    let sample3 = textureSample(text_texture, sprite_sampler, in.uv);
     var sample = sample1;
     if in.texture_id == 1. {
+        sample = sample3;
+    }
+    if in.texture_id == 2. {
         sample = sample2;
     }
 

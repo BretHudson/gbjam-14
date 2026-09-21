@@ -3,8 +3,9 @@ import type { Camera } from '~/renderer/camera';
 import { getSpriteGroups } from '~/renderer/render-utils';
 import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
-import type { SpriteData } from '~/sprite';
+import { Sprite, type SpriteData } from '~/sprite';
 import type { Game, SceneState } from '~/util';
+import { GAME_H, GAME_W } from '~/util/constants';
 import { pause } from '~/util/generators';
 
 let text = _text;
@@ -17,30 +18,25 @@ if (import.meta.hot) {
 
 export interface BootState extends SceneState {
 	entered: boolean;
-	splash: HTMLImageElement;
 	ready: boolean;
 	opacity: number;
 }
 
 export function init(camera: Camera, spriteData: SpriteData): BootState {
-	const spriteGroups = getSpriteGroups(spriteData, 'Prepare');
-
-	const splash = new Image(160, 144);
-	splash.onload = function () {
-		console.log('loaded splash');
-		bootState.ready = true;
-	};
-	splash.src = 'img/gbjam-14-splash.png';
+	const spriteGroups = getSpriteGroups(spriteData);
 
 	const bootState: BootState = {
 		camera,
 		entered: true,
 		spriteGroups,
 		sprites: spriteGroups.flatMap((group) => group.sprites),
-		splash,
 		ready: false,
 		opacity: 0,
 	};
+
+	const sprite = new Sprite(0, 0, GAME_W, GAME_H);
+	sprite.textureId = 2;
+	bootState.sprites.push(sprite);
 
 	// spriteGroups[0].setPalette(0);
 
@@ -52,9 +48,21 @@ export function reset(bootState: BootState) {
 }
 
 function* runAnimate(game: Game) {
-	// const { bootState } = game;
+	const { bootState } = game;
 
-	yield* pause(60);
+	const [sprite] = bootState.sprites;
+
+	for (let i = 0; i < 4; ++i) {
+		sprite.setShift(-3 + i);
+		yield* pause(30);
+	}
+
+	yield* pause(30);
+
+	for (let i = 0; i < 4; ++i) {
+		sprite.setShift(i);
+		yield* pause(30);
+	}
 
 	game.nextScene = 'MENU';
 }
@@ -65,6 +73,7 @@ export function update(
 	controller: ControllerInput,
 ): void {
 	const { bootState } = game;
+
 	if (bootState.entered) {
 		// game.nextScene = 'MENU';
 		bootState.entered = false;
@@ -79,7 +88,5 @@ export function update(
 }
 
 export function render(textRenderer: TextRenderer, bootState: BootState) {
-	const { ctx } = textRenderer;
-
-	ctx.drawImage(bootState.splash, 0, 0);
+	//
 }
