@@ -142,7 +142,7 @@ export function render(renderer: Renderer, menuState: MenuState) {
 
 	const options = [
 		'Start Game',
-		`Swap Palette (@${index}@/@${total}@)`,
+		`Swap Palette`,
 		'Play the Original',
 		'RESET CONSOLE',
 	];
@@ -153,11 +153,22 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	options[menuState.option] = str;
 
 	const spacing = 10;
-	let YY = Math.floor((GAME_H - spacing) / 2);
+	let YY = Math.floor((GAME_H - spacing) / 2) - 8;
 
 	// const title = 'B@A@T@T@L@E  II';
 	// const TEXT_Y = YY - 20;
 	// renderTextWithOutline(textRenderer, title, 0, TEXT_Y, 3);
+
+	const desc = [
+		'Battle the monster!',
+		`Palette ${index}@@@/@@@${total}@`,
+		'Made for GBJam #2 (2013)',
+		'',
+	];
+
+	renderTextWithOutline(textRenderer, desc[menuState.option], 0, YY, 3, 0);
+
+	YY += 16;
 
 	for (let i = 0; i < MenuOption.NUM; ++i) {
 		if (i === MenuOption.RESET) YY += 10;
@@ -212,13 +223,20 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	textRenderer.ctx.fillRect(0, FOOTER_Y + 1, GAME_W, 11);
 
 	const dudes = 'Ethan@@@&@@@Bret';
-	text.renderText(textRenderer, '@:', 0, FOOTER_Y + 4, 3);
+	const pattern = '@@:::@@:::@@:::@@:::';
+	text.renderText(textRenderer, '@' + pattern, 0, FOOTER_Y + 4, 3);
 	text.renderTextCentered(
 		textRenderer,
 		`(c) 2026 ${dudes}`,
-		0,
+		1,
 		FOOTER_Y + 4,
 		3,
 	);
-	text.renderTextRight(textRenderer, ':', GAME_W, FOOTER_Y + 4, 3);
+	text.renderTextRight(
+		textRenderer,
+		pattern.split('').reverse().join(''),
+		GAME_W,
+		FOOTER_Y + 4,
+		3,
+	);
 }
