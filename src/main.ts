@@ -227,6 +227,8 @@ async function setupApp(): Promise<void> {
 
 		consoleUI.updateConsoleUI(controllerInput);
 
+		if (input.keyPressed('Backquote'))
+			debugInfo.classList.toggle('visible');
 		game.swapPalette ||= controllerInput.keyPressed('Select') ? 1 : 0;
 
 		if (game.swapPalette !== 0) {

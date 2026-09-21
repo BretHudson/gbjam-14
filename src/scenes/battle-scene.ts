@@ -1,12 +1,12 @@
-import { mat3, vec2 } from 'wgpu-matrix';
+import { vec2 } from 'wgpu-matrix';
 import type { ControllerInput } from '~/input';
 import { Camera } from '~/renderer/camera';
 import { getSpriteGroups } from '~/renderer/render-utils';
 import type { TextRenderer } from '~/renderer/text-renderer';
 import * as _text from '~/renderer/text-renderer';
-import { Sprite, SpriteData, SpriteGroup } from '~/sprite';
+import { SpriteData, SpriteGroup } from '~/sprite';
 import type { Game, SceneState } from '~/util';
-import { GAME_H, GAME_W, PADDING } from '~/util/constants';
+import { GAME_H, GAME_W } from '~/util/constants';
 import {
 	chain,
 	fadeIn,
@@ -211,10 +211,12 @@ export function update(
 
 	const { rawInput: input } = controller;
 
-	for (let i = 0; i < FSMState.NUM; ++i) {
-		if (i === FSMState.NONE) continue;
-		if (i === FSMState.NUM) continue;
-		if (input.keyPressed(`Digit${i}`)) battleState.nextState = i;
+	if (import.meta.hot) {
+		for (let i = 0; i < FSMState.NUM; ++i) {
+			if (i === FSMState.NONE) continue;
+			if (i === FSMState.NUM) continue;
+			if (input.keyPressed(`Digit${i}`)) battleState.nextState = i;
+		}
 	}
 
 	if (controller.keyPressed('Start')) {
@@ -275,22 +277,35 @@ export function update(
 		case FSMState.PLAYER_INPUT: {
 			let direction = Direction.None;
 
+			let spriteIndex = -1;
+
 			switch (true) {
 				case controller.keyHeld('Right'):
 					direction = Direction.Right;
+					spriteIndex = 1;
 					break;
 				case controller.keyHeld('Down'):
 					direction = Direction.Down;
+					spriteIndex = 0;
 					break;
 				case controller.keyHeld('Left'):
 					direction = Direction.Left;
+					spriteIndex = 2;
 					break;
 				case controller.keyHeld('Up'):
 					direction = Direction.Up;
+					spriteIndex = 3;
 					break;
 			}
 
 			// update arrows
+			const arrows = spriteGroups.at(-1)!;
+			for (let i = 0; i < 4; ++i) {
+				const offset = i * 2;
+				const selected = i === spriteIndex;
+				arrows.sprites[offset + 0].visible = selected;
+				arrows.sprites[offset + 1].visible = !selected;
+			}
 
 			const canPlay = direction !== Direction.None;
 			if (
@@ -396,6 +411,7 @@ function* runIntro(battleState: BattleState) {
 		//
 		fadeIn2(spriteGroups[1].sprites),
 		fadeIn2(spriteGroups[2].sprites),
+		chain(pause(), fadeIn(spriteGroups.at(-1)!.sprites)),
 	);
 
 	spriteGroups[0].visible = true;

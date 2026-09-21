@@ -145,6 +145,8 @@ const VALID_KEYS = [
 	'KeyK',
 	'KeyX',
 	'KeyL',
+	// for debug
+	'Backquote',
 	...Array.from({ length: 10 }, (_, i) => `Digit${i}`),
 ];
 

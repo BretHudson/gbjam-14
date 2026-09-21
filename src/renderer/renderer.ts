@@ -58,6 +58,12 @@ const _palettes = [
 	createPalette('#233933', '#A3574E', '#E6B95A', '#D5D8D1'),
 ];
 
+// soulscape
+// singularity
+// m-gb
+// gb am90
+// dreamful space
+
 export interface TexturePointer {
 	texture: GPUTexture;
 	view: GPUTextureView;

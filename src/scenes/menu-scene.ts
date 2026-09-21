@@ -182,6 +182,14 @@ export function render(renderer: Renderer, menuState: MenuState) {
 	textRenderer.ctx.fillStyle = colors[1];
 	textRenderer.ctx.fillRect(0, FOOTER_Y + 1, GAME_W, 11);
 
-	text.renderText(textRenderer, ' made by EFAN + BERT ', 0, FOOTER_Y + 4, 3);
-	text.renderTextRight(textRenderer, ' (c) 2026 ', GAME_W, FOOTER_Y + 4, 3);
+	const dudes = 'Ethan@@@&@@@Bret';
+	text.renderText(textRenderer, '@:', 0, FOOTER_Y + 4, 3);
+	text.renderTextCentered(
+		textRenderer,
+		`(c) 2026 ${dudes}`,
+		0,
+		FOOTER_Y + 4,
+		3,
+	);
+	text.renderTextRight(textRenderer, ':', GAME_W, FOOTER_Y + 4, 3);
 }
